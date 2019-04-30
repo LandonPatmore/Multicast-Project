@@ -1,4 +1,4 @@
-package utils;
+package com.csc495.backend.utils;
 
 import java.util.Random;
 

@@ -1,4 +1,4 @@
-package networking;
+package com.csc495.backend.networking;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -18,7 +18,7 @@ public class MulticastThread implements Runnable {
 
     @Override
     public void run() {
-        // TODO: Need to create the game state
+        // TODO: Need to create the com.csc495.backend.game state
 
         // TODO: Encryption
 

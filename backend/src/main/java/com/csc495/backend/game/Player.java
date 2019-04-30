@@ -1,6 +1,6 @@
-package game;
+package com.csc495.backend.game;
 
-import utils.Utils;
+import com.csc495.backend.utils.Utils;
 
 import java.util.LinkedList;
 import java.util.List;

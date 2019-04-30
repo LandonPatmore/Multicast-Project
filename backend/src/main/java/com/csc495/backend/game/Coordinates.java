@@ -1,4 +1,4 @@
-package game;
+package com.csc495.backend.game;
 
 public class Coordinates {
     private final int x;
