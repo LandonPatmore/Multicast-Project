@@ -2,17 +2,22 @@ package com.csc495.backend.game;
 
 import com.csc495.backend.utils.Utils;
 
+import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Player {
+    private final InetAddress address;
+    private final int port;
     private final String name;
     private final int[] color;
     private final List<Coordinates> snake;
 
     private boolean isAlive;
 
-    public Player(String name) {
+    public Player(InetAddress address, int port, String name) {
+        this.address = address;
+        this.port = port;
         this.name = name;
         this.color = Utils.generateColor();
         this.snake = new LinkedList<>();

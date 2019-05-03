@@ -8,6 +8,7 @@ import com.csc495.backend.utils.Packet;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
@@ -16,11 +17,11 @@ public class MulticastThread implements Runnable {
     private static final int PORT = 4445;
 
     private final InetAddress group;
-    private final MulticastSocket socket;
+    private final DatagramSocket socket;
 
     public MulticastThread() throws IOException {
         this.group = InetAddress.getByName("224.0.0.192");
-        this.socket = new MulticastSocket(PORT);
+        this.socket = new DatagramSocket(PORT);
     }
 
     private boolean sendPacket(DatagramPacket packet) {
@@ -61,13 +62,21 @@ public class MulticastThread implements Runnable {
                     // TODO: Data method
                     break;
                 case 3:
-                    p = new ErrorPacket(); // we need to unicast this
+                    p = new ErrorPacket(); // we need to unicast this and multicast as well
                     p.parsePacket(receivedPacket.getData());
                     // TODO: Error method
                     break;
                 default:
-                    System.err.println("Packet could not be parsed properly");
-                    return;
+                    System.out.println(new String(receivedPacket.getData(), 0, receivedPacket.getLength()));
+                    final String toClient = "Message from server";
+                    try {
+                        socket.send(new DatagramPacket(toClient.getBytes(), toClient.length(), group, 4446));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+//                    System.out.println("received packet");
+//                    System.err.println("Packet could not be parsed properly");
+//                    return;
             }
 
 
