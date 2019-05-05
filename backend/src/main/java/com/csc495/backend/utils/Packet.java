@@ -6,59 +6,89 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Packet {
+    protected enum Type {
+        ENCRYPTION((byte) 1),
+        JOIN((byte) 2),
+        PlAY((byte) 3),
+        STATE((byte) 4),
+        HEARTBEAT((byte) 5),
+        ACK((byte) 6),
+        ERROR((byte) 7);
 
-    public static final int SIZE = 512;
+        private final byte value;
 
-    private final List<Byte> sendableData;
-
-    public enum PacketType {
-        ENCRYPTION(1),
-        DATA(2),
-        ERROR(3);
-
-        private final int value;
-
-        PacketType(int value) {
+        Type(byte value) {
             this.value = value;
         }
 
         public byte getValue() {
-            return (byte) this.value;
+            return this.value;
         }
     }
 
-    Packet(PacketType packetType) {
-        this.sendableData = new ArrayList<>();
+    public static final int SIZE = 512;
 
-        this.sendableData.add(packetType.getValue());
+    private List<Byte> data = new ArrayList<>(SIZE);
+    private final Type type;
+
+    private InetAddress senderAddress;
+    private int senderPort;
+
+    public Packet(Type type) {
+        this.type = type;
     }
 
-    // we already know that the first index is the code, we don't need to look at it anymore after we know the type of packet
-    public abstract void parsePacket(byte[] data);
+    public abstract void parseSocketData(DatagramPacket packet); // always start at 1 because we aready determined what type of packet it was
 
-    public boolean addData(int... toAdd) {
-        for (int d : toAdd) {
-            if (sendableData.size() >= 512) {
-                return false;
-            }
-            sendableData.add((byte) d);
+    protected abstract byte[] createPacketData();
+
+    public DatagramPacket createUnicastPacket() {
+        final byte[] data = createPacketData();
+
+        return new DatagramPacket(data, data.length, senderAddress, senderPort);
+    }
+
+    public DatagramPacket createMulticastPacket(InetAddress address, int port) {
+        final byte[] data = createPacketData();
+
+        return new DatagramPacket(data, data.length, address, port);
+    }
+
+    byte[] arrayListToArrayHelper() {
+        final byte[] dataArray = new byte[data.size()];
+
+        for (int i = 0; i < dataArray.length; i++) {
+            dataArray[i] = data.get(i);
         }
 
-        return true;
+        return dataArray;
     }
 
-    private byte[] getDataBytes() {
-        final byte[] bytes = new byte[sendableData.size()];
-
-        for (int i = 0; i < sendableData.size(); i++) {
-            bytes[i] = sendableData.get(i);
-        }
-
-        return bytes;
+    List<Byte> getData() {
+        return data;
     }
 
-    public DatagramPacket getDatagramPacket(InetAddress address, int port) {
-        final byte[] dataBytes = getDataBytes();
-        return new DatagramPacket(dataBytes, dataBytes.length, address, port);
+    void addData(byte data) {
+        this.data.add(data);
+    }
+
+    Type getType() {
+        return type;
+    }
+
+    InetAddress getSenderAddress() {
+        return senderAddress;
+    }
+
+    void setSenderAddress(InetAddress senderAddress) {
+        this.senderAddress = senderAddress;
+    }
+
+    int getSenderPort() {
+        return senderPort;
+    }
+
+    void setSenderPort(int senderPort) {
+        this.senderPort = senderPort;
     }
 }

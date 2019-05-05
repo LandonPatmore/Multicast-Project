@@ -10,13 +10,16 @@ public class TestClient {
         socket.joinGroup(group);
         final InetAddress address = InetAddress.getByName("127.0.0.1");
 
-        final String test = "This is a test message";
+        final String test = "Bob";
 
-        socket.send(new DatagramPacket(test.getBytes(), test.length(), address, 4445));
-        byte[] buf = new byte[512];
-        final DatagramPacket packet = new DatagramPacket(buf, buf.length);
-        socket.receive(packet);
+        byte[] buf = new byte[test.length() + 1];
 
-        System.out.println(new String(packet.getData(), 0, packet.getLength()));
+        buf[0] = 2;
+
+        for (int i = 0; i < test.length(); i++) {
+            buf[i + 1] = test.getBytes()[i];
+        }
+
+        socket.send(new DatagramPacket(buf, buf.length, address, 4445));
     }
 }
