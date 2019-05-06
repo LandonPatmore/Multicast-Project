@@ -2,6 +2,7 @@ package com.csc495.backend.utils;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,16 +41,20 @@ public abstract class Packet {
 
     public abstract void parseSocketData(DatagramPacket packet); // always start at 1 because we aready determined what type of packet it was
 
-    protected abstract byte[] createPacketData();
+    protected abstract void createPacketData();
 
     public DatagramPacket createUnicastPacket() {
-        final byte[] data = createPacketData();
+        createPacketData();
+
+        final byte[] data = arrayListToArrayHelper();
 
         return new DatagramPacket(data, data.length, senderAddress, senderPort);
     }
 
     public DatagramPacket createMulticastPacket(InetAddress address, int port) {
-        final byte[] data = createPacketData();
+        createPacketData();
+
+        final byte[] data = arrayListToArrayHelper();
 
         return new DatagramPacket(data, data.length, address, port);
     }
@@ -62,6 +67,16 @@ public abstract class Packet {
         }
 
         return dataArray;
+    }
+
+    byte[] shortToByteArray(short number) {
+        return ByteBuffer.allocate(2).putShort(number).array();
+    }
+
+    void addByteArray(byte[] data) {
+        for (byte b : data) {
+            addData(b);
+        }
     }
 
     List<Byte> getData() {

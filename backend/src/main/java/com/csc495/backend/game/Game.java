@@ -1,6 +1,8 @@
 package com.csc495.backend.game;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Game {
@@ -13,11 +15,50 @@ public class Game {
     public Game() {
     }
 
-    public void addPlayerToGame(Player player) {
-        playersList.add(player);
+    public synchronized boolean playerIsInGame(Player newPlayer) {
+        for (Player p : playersList) {
+            if (p.getAddress().equals(newPlayer.getAddress())) {
+                return true;
+            } else if (p.getName().equals(newPlayer.getName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public void removePlayerFromGame() { // TODO: Figure out how to distinguish players from each other (probably their IP, etc.)
+    public synchronized boolean addPlayerToGame(Player newPlayer) {
+        if (!playerIsInGame(newPlayer)) {
+            playersList.add(newPlayer);
+            System.out.println(newPlayer.getName() + " has connected.");
 
+            return true;
+        }
+
+        return false;
+    }
+
+    public synchronized void updatePlayerHeartbeat(InetAddress address) {
+        for (Player p : playersList) {
+            if (p.getAddress().equals(address)) {
+                p.setHasHeartbeat(true);
+                System.out.println(p.getName() + " heartbeat detected.");
+
+                return;
+            }
+        }
+    }
+
+    public synchronized void sweepPlayers() {
+        Iterator<Player> playerIterator = playersList.iterator();
+        while (playerIterator.hasNext()) {
+            final Player player = playerIterator.next();
+            if (player.hasHeartbeat()) {
+                player.setHasHeartbeat(false);
+            } else {
+                System.out.println(player.getName() + " has disconnected.");
+                playerIterator.remove();
+            }
+        }
     }
 }
