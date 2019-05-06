@@ -59,6 +59,7 @@ public class MulticastThread implements Runnable {
                 return;
             }
 
+            // TODO: Will split all of these into functions
             switch (receivedPacket.getData()[0]) {
                 case 1: // Encryption packet
                     System.out.println("Encryption packet");
@@ -67,7 +68,18 @@ public class MulticastThread implements Runnable {
                     System.out.println("Join packet");
                     final JoinPacket j = new JoinPacket();
                     j.parseSocketData(receivedPacket);
-                    game.addPlayerToGame(new Player(receivedPacket.getAddress(), receivedPacket.getPort(), j.getName()));
+                    final Player newPlayer = new Player(receivedPacket.getAddress(), receivedPacket.getPort(), j.getName());
+                    final boolean didAddToGame = game.addPlayerToGame(newPlayer);
+
+                    if (!didAddToGame) {
+                        final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", receivedPacket);
+                        try {
+                            socket.send(e.createUnicastPacket());
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+
                     break;
                 case 3: // Play packet
                     System.out.println("Play packet");
@@ -99,10 +111,6 @@ public class MulticastThread implements Runnable {
         }
 
         // TODO: Encryption
-
-        // TODO: When packets for games come in, do something with them, then multicast to all clients what has happened
-
-        // TODO: Deal with disconnections (timeout somehow)
 
         // TODO: Other small things that we think of along the way
     }

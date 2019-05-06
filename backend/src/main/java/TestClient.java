@@ -16,7 +16,7 @@ public class TestClient {
 
         byte[] buf = new byte[test.length() + 1];
 
-        buf[0] = 9;
+        buf[0] = 2;
 
         for (int i = 0; i < test.length(); i++) {
             buf[i + 1] = test.getBytes()[i];

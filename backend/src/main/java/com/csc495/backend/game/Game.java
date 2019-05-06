@@ -15,15 +15,35 @@ public class Game {
     public Game() {
     }
 
-    public synchronized void addPlayerToGame(Player player) {
-        playersList.add(player);
-        System.out.println(player.getName() + " has connected.");
+    public synchronized boolean playerIsInGame(Player newPlayer) {
+        for (Player p : playersList) {
+            if (p.getAddress().equals(newPlayer.getAddress())) {
+                return true;
+            } else if (p.getName().equals(newPlayer.getName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public synchronized boolean addPlayerToGame(Player newPlayer) {
+        if (!playerIsInGame(newPlayer)) {
+            playersList.add(newPlayer);
+            System.out.println(newPlayer.getName() + " has connected.");
+
+            return true;
+        }
+
+        return false;
     }
 
     public synchronized void updatePlayerHeartbeat(InetAddress address) {
         for (Player p : playersList) {
             if (p.getAddress().equals(address)) {
                 p.setHasHeartbeat(true);
+                System.out.println(p.getName() + " heartbeat detected.");
+
                 return;
             }
         }
