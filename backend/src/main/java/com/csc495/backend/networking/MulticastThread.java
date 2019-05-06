@@ -1,16 +1,14 @@
 package com.csc495.backend.networking;
 
 import com.csc495.backend.game.Game;
-import com.csc495.backend.utils.DataPacket;
 import com.csc495.backend.utils.EncryptionPacket;
-import com.csc495.backend.utils.ErrorPacket;
+import com.csc495.backend.utils.JoinPacket;
 import com.csc495.backend.utils.Packet;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.MulticastSocket;
 
 public class MulticastThread implements Runnable {
 
@@ -49,34 +47,34 @@ public class MulticastThread implements Runnable {
                 return;
             }
 
-            Packet p;
             switch (receivedPacket.getData()[0]) {
-                case 1:
-                    p = new EncryptionPacket(); // we need to unicast this
-                    p.parsePacket(receivedPacket.getData());
-                    // TODO: Encryption method
+                case 1: // Encryption packet | Unicast
+                    System.out.println("Encryption packet");
                     break;
-                case 2:
-                    p = new DataPacket(); // we need to multicast this
-                    p.parsePacket(receivedPacket.getData());
-                    // TODO: Data method
+                case 2: // Join packet | Multicast
+                    System.out.println("Join packet");
+                    final JoinPacket j = new JoinPacket();
+                    j.parseSocketData(receivedPacket);
+                    System.out.println(j.getName());
                     break;
-                case 3:
-                    p = new ErrorPacket(); // we need to unicast this and multicast as well
-                    p.parsePacket(receivedPacket.getData());
-                    // TODO: Error method
+                case 3: // Play packet | Multicast
+                    System.out.println("Play packet");
+                    break;
+                case 4: // State packet | Unicast
+                    System.out.println("State packet");
+                    break;
+                case 5: // Heartbeat packet | Unicast
+                    System.out.println("Heartbeat packet");
+                    break;
+                case 6: // ACK packet | Unicast
+                    System.out.println("ACK packet");
+                    break;
+                case 7: // Error packet | Unicast/Mutlicast
+                    System.out.println("Error packet");
                     break;
                 default:
-                    System.out.println(new String(receivedPacket.getData(), 0, receivedPacket.getLength()));
-                    final String toClient = "Message from server";
-                    try {
-                        socket.send(new DatagramPacket(toClient.getBytes(), toClient.length(), group, 4446));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-//                    System.out.println("received packet");
-//                    System.err.println("Packet could not be parsed properly");
-//                    return;
+                    System.out.println("Unknown code: " + receivedPacket.getData()[0]);
+                    return;
             }
 
 

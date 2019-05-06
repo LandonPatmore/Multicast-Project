@@ -1,5 +1,4 @@
 package com.csc495.backend.utils;
 
-public class Encryption {
-
+public class StatePacket {
 }
