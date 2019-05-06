@@ -79,15 +79,11 @@ public class MulticastThread implements Runnable {
                             ex.printStackTrace();
                         }
                     }
-
                     break;
                 case 3: // Play packet
                     System.out.println("Play packet");
                     final PlayPacket p = new PlayPacket();
                     p.parseSocketData(receivedPacket);
-                    break;
-                case 4: // State packet
-                    System.out.println("State packet");
                     break;
                 case 5: // Heartbeat packet
                     System.out.println("Heartbeat packet");

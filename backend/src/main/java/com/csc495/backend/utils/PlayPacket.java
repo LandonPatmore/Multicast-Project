@@ -8,7 +8,7 @@ public class PlayPacket extends Packet {
 
     private final Spot spot;
 
-    private int sequenceNumber;
+    private short sequenceNumber;
 
     public PlayPacket() {
         super(Type.PlAY);
@@ -28,12 +28,9 @@ public class PlayPacket extends Packet {
     @Override
     protected void createPacketData() {
         addData(getType().getValue());
-        addData((byte) sequenceNumber);
-        addData((byte) spot.getX());
-        addData((byte) spot.getY());
-        addData((byte) spot.getColor());
+        addByteArray(shortToByteArray(sequenceNumber));
 
-        for (byte b : spot.getName().getBytes()) {
+        for (byte b : spot.getByteArray()) {
             addData(b);
         }
     }
@@ -42,7 +39,7 @@ public class PlayPacket extends Packet {
         return sequenceNumber;
     }
 
-    public void setSequenceNumber(int sequenceNumber) {
+    public void setSequenceNumber(short sequenceNumber) {
         this.sequenceNumber = sequenceNumber;
     }
 

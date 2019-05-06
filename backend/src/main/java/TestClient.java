@@ -10,7 +10,21 @@ public class TestClient {
         final MulticastSocket socket = new MulticastSocket(4446);
         final InetAddress group = InetAddress.getByName("224.0.0.192");
         socket.joinGroup(group);
-        final InetAddress address = InetAddress.getByName("127.0.0.1");
+        final InetAddress server = InetAddress.getByName("127.0.0.1");
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(2000);
+                    byte[] hBuf = new byte[1];
+                    hBuf[0] = 5;
+
+                    socket.send(new DatagramPacket(hBuf, hBuf.length, server, 4445));
+                } catch (InterruptedException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
         final String test = "Bob";
 
@@ -22,7 +36,7 @@ public class TestClient {
             buf[i + 1] = test.getBytes()[i];
         }
 
-        socket.send(new DatagramPacket(buf, buf.length, address, 4445));
+        socket.send(new DatagramPacket(buf, buf.length, server, 4445));
 
         byte[] errBuf = new byte[512];
         final DatagramPacket packet = new DatagramPacket(errBuf, errBuf.length);

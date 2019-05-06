@@ -1,10 +1,13 @@
 package com.csc495.backend.game;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Spot {
     private String name;
-    private int color;
-    private int x;
-    private int y;
+    private byte color;
+    private byte x;
+    private byte y;
 
     public Spot() {
     }
@@ -17,23 +20,23 @@ public class Spot {
         this.name = name;
     }
 
-    public int getX() {
+    public byte getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(byte x) {
         this.x = x;
     }
 
-    public int getY() {
+    public byte getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public void setY(byte y) {
         this.y = y;
     }
 
-    public int getColor() {
+    public byte getColor() {
         return color;
     }
 
@@ -52,7 +55,26 @@ public class Spot {
      *
      * @param color the number of the color
      */
-    public void setColor(int color) {
+    public void setColor(byte color) {
         this.color = color;
+    }
+
+    public byte[] getByteArray() {
+        final List<Byte> data = new ArrayList<>();
+        data.add(x);
+        data.add(y);
+        data.add(color);
+
+        for (byte b : name.getBytes()) {
+            data.add(b);
+        }
+
+        final byte[] dataArray = new byte[data.size()];
+
+        for(int i = 0; i < dataArray.length; i++) {
+            dataArray[i] = data.get(i);
+        }
+
+        return dataArray;
     }
 }
