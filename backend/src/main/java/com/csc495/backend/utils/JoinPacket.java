@@ -19,13 +19,12 @@ public class JoinPacket extends Packet {
     }
 
     @Override
-    protected byte[] createPacketData() {
+    protected void createPacketData() {
         addData(getType().getValue());
+
         for (byte b : name.getBytes()) {
             addData(b);
         }
-
-        return arrayListToArrayHelper();
     }
 
     public String getName() {

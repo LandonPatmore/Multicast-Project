@@ -40,16 +40,20 @@ public abstract class Packet {
 
     public abstract void parseSocketData(DatagramPacket packet); // always start at 1 because we aready determined what type of packet it was
 
-    protected abstract byte[] createPacketData();
+    protected abstract void createPacketData();
 
     public DatagramPacket createUnicastPacket() {
-        final byte[] data = createPacketData();
+        createPacketData();
+
+        final byte[] data = arrayListToArrayHelper();
 
         return new DatagramPacket(data, data.length, senderAddress, senderPort);
     }
 
     public DatagramPacket createMulticastPacket(InetAddress address, int port) {
-        final byte[] data = createPacketData();
+        createPacketData();
+
+        final byte[] data = arrayListToArrayHelper();
 
         return new DatagramPacket(data, data.length, address, port);
     }
