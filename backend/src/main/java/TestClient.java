@@ -1,3 +1,5 @@
+import com.csc495.backend.utils.Packet;
+
 import java.io.IOException;
 import java.net.*;
 
@@ -14,12 +16,17 @@ public class TestClient {
 
         byte[] buf = new byte[test.length() + 1];
 
-        buf[0] = 2;
+        buf[0] = 9;
 
         for (int i = 0; i < test.length(); i++) {
             buf[i + 1] = test.getBytes()[i];
         }
 
         socket.send(new DatagramPacket(buf, buf.length, address, 4445));
+
+        byte[] errBuf = new byte[512];
+        final DatagramPacket packet = new DatagramPacket(errBuf, errBuf.length);
+        socket.receive(packet);
+        System.out.println(new String(packet.getData(), 0, packet.getLength()));
     }
 }

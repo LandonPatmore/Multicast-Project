@@ -6,9 +6,11 @@ public class ErrorPacket extends Packet {
 
     private final String errorMessage;
 
-    public ErrorPacket(String errorMessage) {
+    public ErrorPacket(String errorMessage, DatagramPacket previousPacket) {
         super(Type.ERROR);
         this.errorMessage = errorMessage;
+        setSenderAddress(previousPacket.getAddress());
+        setSenderPort(previousPacket.getPort());
     }
 
     @Override

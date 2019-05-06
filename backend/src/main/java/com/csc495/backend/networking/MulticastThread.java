@@ -2,6 +2,7 @@ package com.csc495.backend.networking;
 
 import com.csc495.backend.game.Game;
 import com.csc495.backend.game.Player;
+import com.csc495.backend.utils.ErrorPacket;
 import com.csc495.backend.utils.JoinPacket;
 import com.csc495.backend.utils.Packet;
 import com.csc495.backend.utils.PlayPacket;
@@ -84,12 +85,14 @@ public class MulticastThread implements Runnable {
                 case 6: // ACK packet
                     System.out.println("ACK packet");
                     break;
-                case 7: // Error packet
-                    System.out.println("Error packet");
-                    break;
                 default:
-                    System.out.println("Unknown code: " + receivedPacket.getData()[0]);
-                    return;
+                    System.out.println("Received unknown code: " + receivedPacket.getData()[0]);
+                    final ErrorPacket e = new ErrorPacket("Unknown packet code: " + receivedPacket.getData()[0], receivedPacket);
+                    try {
+                        socket.send(e.createUnicastPacket());
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
             }
 
 
