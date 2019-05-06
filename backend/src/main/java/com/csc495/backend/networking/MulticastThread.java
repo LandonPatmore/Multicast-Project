@@ -34,6 +34,13 @@ public class MulticastThread implements Runnable {
         }
     }
 
+    private void receivePacket(DatagramPacket packet) {
+        try {
+            socket.receive(packet); // we actually receive the data here
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void run() {
@@ -52,12 +59,7 @@ public class MulticastThread implements Runnable {
         while (true) {
             final byte[] buf = new byte[Packet.SIZE];
             final DatagramPacket receivedPacket = new DatagramPacket(buf, buf.length);
-            try {
-                socket.receive(receivedPacket); // we actually receive the data here
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
+            receivePacket(receivedPacket); // we actually receive the data here
 
             // TODO: Will split all of these into functions
             switch (receivedPacket.getData()[0]) {
@@ -73,11 +75,7 @@ public class MulticastThread implements Runnable {
 
                     if (!didAddToGame) {
                         final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", receivedPacket);
-                        try {
-                            socket.send(e.createUnicastPacket());
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
+                        sendPacket(e.createUnicastPacket());
                     }
                     break;
                 case 3: // Play packet
@@ -96,11 +94,7 @@ public class MulticastThread implements Runnable {
                 default:
                     System.out.println("Received unknown code: " + receivedPacket.getData()[0]);
                     final ErrorPacket e = new ErrorPacket("Unknown packet code: " + receivedPacket.getData()[0], receivedPacket);
-                    try {
-                        socket.send(e.createUnicastPacket());
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+                    sendPacket(e.createUnicastPacket());
             }
 
 
