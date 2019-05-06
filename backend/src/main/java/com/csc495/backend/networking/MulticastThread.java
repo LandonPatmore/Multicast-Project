@@ -2,10 +2,10 @@ package com.csc495.backend.networking;
 
 import com.csc495.backend.game.Game;
 import com.csc495.backend.game.Player;
-import com.csc495.backend.utils.ErrorPacket;
-import com.csc495.backend.utils.JoinPacket;
-import com.csc495.backend.utils.Packet;
-import com.csc495.backend.utils.PlayPacket;
+import com.csc495.backend.packets.ErrorPacket;
+import com.csc495.backend.packets.JoinPacket;
+import com.csc495.backend.packets.Packet;
+import com.csc495.backend.packets.PlayPacket;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

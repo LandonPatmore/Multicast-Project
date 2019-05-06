@@ -9,13 +9,22 @@ public class Game {
     private static final int WIDTH = 50;
     private static final int HEIGHT = 65;
 
-    private final Spot[][] spaces = new Spot[WIDTH][HEIGHT];
+    private final Spot[][] spots = new Spot[WIDTH][HEIGHT];
     private final List<Player> playersList = new ArrayList<>();
 
     public Game() {
+        initializeSpaces();
     }
 
-    public synchronized boolean playerIsInGame(Player newPlayer) {
+    private void initializeSpaces() {
+        for (int i = 0; i < spots.length; i++) {
+            for (int j = 0; j < spots[0].length; j++) {
+                spots[i][j] = new Spot(i, j);
+            }
+        }
+    }
+
+    private synchronized boolean playerIsInGame(Player newPlayer) {
         for (Player p : playersList) {
             if (p.getAddress().equals(newPlayer.getAddress())) {
                 return true;
@@ -60,5 +69,14 @@ public class Game {
                 playerIterator.remove();
             }
         }
+    }
+
+    public void updateSpot(Spot spotToUpdate) {
+        final Spot spot = spots[spotToUpdate.getX()][spotToUpdate.getY()];
+
+        spot.setName(spotToUpdate.getName());
+        spot.setColor(spotToUpdate.getColor());
+
+        System.out.println("Spot (" + spot.getX() + "," + spot.getY() + ") updated - Name: " + spot.getName() + " | Color: " + spot.getColor());
     }
 }

@@ -6,10 +6,16 @@ import java.util.List;
 public class Spot {
     private String name;
     private byte color;
-    private byte x;
-    private byte y;
+    private int x;
+    private int y;
 
     public Spot() {
+    }
+
+    public Spot(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.color = 6; // white
     }
 
     public String getName() {
@@ -20,7 +26,7 @@ public class Spot {
         this.name = name;
     }
 
-    public byte getX() {
+    public int getX() {
         return x;
     }
 
@@ -28,7 +34,7 @@ public class Spot {
         this.x = x;
     }
 
-    public byte getY() {
+    public int getY() {
         return y;
     }
 
@@ -61,8 +67,8 @@ public class Spot {
 
     public byte[] getByteArray() {
         final List<Byte> data = new ArrayList<>();
-        data.add(x);
-        data.add(y);
+        data.add((byte) x);
+        data.add((byte) y);
         data.add(color);
 
         for (byte b : name.getBytes()) {
@@ -71,7 +77,7 @@ public class Spot {
 
         final byte[] dataArray = new byte[data.size()];
 
-        for(int i = 0; i < dataArray.length; i++) {
+        for (int i = 0; i < dataArray.length; i++) {
             dataArray[i] = data.get(i);
         }
 
