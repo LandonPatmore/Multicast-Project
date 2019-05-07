@@ -3,7 +3,10 @@ package com.csc495.backend.networking;
 import com.csc495.backend.game.Game;
 import com.csc495.backend.game.Player;
 import com.csc495.backend.game.Spot;
-import com.csc495.backend.packets.*;
+import com.csc495.backend.packets.ErrorPacket;
+import com.csc495.backend.packets.JoinPacket;
+import com.csc495.backend.packets.PlayPacket;
+import com.csc495.backend.packets.StatePacket;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -34,18 +37,24 @@ public class MulticastThread implements Runnable {
         }
     }
 
-    private void receivePacket(DatagramPacket packet) {
+    private DatagramPacket receivePacket() {
         try {
+            final byte[] buf = new byte[512];
+            final DatagramPacket packet = new DatagramPacket(buf, buf.length);
             socket.receive(packet); // we actually receive the data here
+            return packet;
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 
     private void sendState(Game game, Player player) {
         final Spot[][] spots = game.getSpots();
         List<Byte> data = new ArrayList<>();
 
+        // Gettings all the bytes of the game and adding them to an arraylist
         for (Spot[] spot : spots) {
             for (int j = 0; j < spots[0].length; j++) {
                 for (int k = 0; k < spot[j].getByteArray().length; k++) {
@@ -54,21 +63,29 @@ public class MulticastThread implements Runnable {
             }
         }
 
+        // Creating the state packets to send
         final short totalPacketsToSend = (short) Math.ceil((double) data.size() / 507);
         short i = 1;
 
+        final List<StatePacket> statePackets = new ArrayList<>();
         while (true) {
             final StatePacket statePacket = new StatePacket(player, i, totalPacketsToSend);
             if (data.size() >= 507) {
                 statePacket.addStateData(data.subList(0, 507));
-                sendPacket(statePacket.createUnicastPacket());
+                statePackets.add(statePacket);
                 data = data.subList(507, data.size());
             } else {
                 statePacket.addStateData(data);
-                sendPacket(statePacket.createUnicastPacket());
-                return;
+                statePackets.add(statePacket);
+                break;
             }
             i++;
+        }
+
+        // Sending the state packets
+        for (StatePacket statePacket : statePackets) { // TODO: Timeout check
+            sendPacket(statePacket.createUnicastPacket());
+            // TODO: Receive the ACKS back from this specific client only somehow
         }
 
     }
@@ -88,9 +105,7 @@ public class MulticastThread implements Runnable {
         }).start();
 
         while (true) {
-            final byte[] buf = new byte[Packet.SIZE];
-            final DatagramPacket receivedPacket = new DatagramPacket(buf, buf.length);
-            receivePacket(receivedPacket); // we actually receive the data here
+            final DatagramPacket receivedPacket = receivePacket(); // we actually receive the data here
 
             // TODO: Will split all of these into functions
             switch (receivedPacket.getData()[0]) {

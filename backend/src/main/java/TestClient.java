@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.*;
+import java.util.Arrays;
 
 public class TestClient {
 
@@ -36,9 +37,11 @@ public class TestClient {
 
         socket.send(new DatagramPacket(buf, buf.length, server, 4445));
 
-        byte[] errBuf = new byte[512];
-        final DatagramPacket packet = new DatagramPacket(errBuf, errBuf.length);
-        socket.receive(packet);
-        System.out.println(new String(packet.getData(), 0, packet.getLength()));
+        while (true) {
+            byte[] errBuf = new byte[512];
+            final DatagramPacket packet = new DatagramPacket(errBuf, errBuf.length);
+            socket.receive(packet);
+            System.out.println(Arrays.toString(packet.getData()));
+        }
     }
 }
