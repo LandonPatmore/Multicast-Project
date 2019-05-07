@@ -2,15 +2,15 @@ package com.csc495.backend.networking;
 
 import com.csc495.backend.game.Game;
 import com.csc495.backend.game.Player;
-import com.csc495.backend.packets.ErrorPacket;
-import com.csc495.backend.packets.JoinPacket;
-import com.csc495.backend.packets.Packet;
-import com.csc495.backend.packets.PlayPacket;
+import com.csc495.backend.game.Spot;
+import com.csc495.backend.packets.*;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MulticastThread implements Runnable {
 
@@ -40,6 +40,37 @@ public class MulticastThread implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void sendState(Game game, Player player) {
+        final Spot[][] spots = game.getSpots();
+        List<Byte> data = new ArrayList<>();
+
+        for (Spot[] spot : spots) {
+            for (int j = 0; j < spots[0].length; j++) {
+                for (int k = 0; k < spot[j].getByteArray().length; k++) {
+                    data.add(spot[j].getByteArray()[k]);
+                }
+            }
+        }
+
+        final short totalPacketsToSend = (short) Math.ceil(data.size() / 507);
+        short i = 1;
+
+        while (true) {
+            final StatePacket statePacket = new StatePacket(player, i, totalPacketsToSend);
+            if (data.size() >= 507) {
+                statePacket.addStateData(data.subList(0, 507));
+                sendPacket(statePacket.createUnicastPacket());
+                data = data.subList(507, data.size());
+            } else {
+                statePacket.addStateData(data);
+                sendPacket(statePacket.createUnicastPacket());
+                return;
+            }
+            i++;
+        }
+
     }
 
     @Override
@@ -77,31 +108,30 @@ public class MulticastThread implements Runnable {
                         final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", receivedPacket);
                         sendPacket(e.createUnicastPacket());
                     }
+
+                    sendState(game, newPlayer);
                     break;
                 case 3: // Play packet
                     System.out.println("Play packet");
                     final PlayPacket p = new PlayPacket();
                     p.parseSocketData(receivedPacket);
+
+                    sendPacket(p.createMulticastPacket(group, 4446));
                     break;
                 case 5: // Heartbeat packet
                     System.out.println("Heartbeat packet");
-                    game.updatePlayerHeartbeat(receivedPacket.getAddress());
-                    // TODO: Update user that they are still connected
-                    break;
-                case 6: // ACK packet
-                    System.out.println("ACK packet");
+                    final boolean heartbeatUpdated = game.updatePlayerHeartbeat(receivedPacket.getAddress());
+
+                    if (!heartbeatUpdated) {
+                        final ErrorPacket e = new ErrorPacket("User is not properly connected.  Please exit and try again to authenticate.", receivedPacket);
+                        sendPacket(e.createUnicastPacket());
+                    }
                     break;
                 default:
                     System.out.println("Received unknown code: " + receivedPacket.getData()[0]);
                     final ErrorPacket e = new ErrorPacket("Unknown packet code: " + receivedPacket.getData()[0], receivedPacket);
                     sendPacket(e.createUnicastPacket());
             }
-
-
         }
-
-        // TODO: Encryption
-
-        // TODO: Other small things that we think of along the way
     }
 }

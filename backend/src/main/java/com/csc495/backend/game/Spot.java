@@ -71,8 +71,12 @@ public class Spot {
         data.add((byte) y);
         data.add(color);
 
-        for (byte b : name.getBytes()) {
-            data.add(b);
+        if (name != null) {
+            for (byte b : name.getBytes()) {
+                data.add(b);
+            }
+        } else {
+            data.add((byte) 126); // ~
         }
 
         final byte[] dataArray = new byte[data.size()];

@@ -47,15 +47,17 @@ public class Game {
         return false;
     }
 
-    public synchronized void updatePlayerHeartbeat(InetAddress address) {
+    public synchronized boolean updatePlayerHeartbeat(InetAddress address) {
         for (Player p : playersList) {
             if (p.getAddress().equals(address)) {
                 p.setHasHeartbeat(true);
                 System.out.println(p.getName() + " heartbeat detected.");
 
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 
     public synchronized void sweepPlayers() {
@@ -78,5 +80,9 @@ public class Game {
         spot.setColor(spotToUpdate.getColor());
 
         System.out.println("Spot (" + spot.getX() + "," + spot.getY() + ") updated - Name: " + spot.getName() + " | Color: " + spot.getColor());
+    }
+
+    public Spot[][] getSpots() {
+        return spots;
     }
 }

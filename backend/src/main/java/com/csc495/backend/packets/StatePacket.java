@@ -1,16 +1,24 @@
 package com.csc495.backend.packets;
 
+import com.csc495.backend.game.Player;
+
 import java.net.DatagramPacket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StatePacket extends Packet {
 
     private final short sequenceNumber;
     private final short totalSequenceNumber;
+    private final List<Byte> stateData;
 
-    public StatePacket(byte sequenceNumber, short totalNumber) {
+    public StatePacket(Player player, short sequenceNumber, short totalNumber) {
         super(Type.STATE);
+        setSenderAddress(player.getAddress());
+        setSenderPort(player.getPort());
         this.sequenceNumber = sequenceNumber;
         this.totalSequenceNumber = totalNumber;
+        this.stateData = new ArrayList<>();
     }
 
     @Override
@@ -25,11 +33,12 @@ public class StatePacket extends Packet {
         addByteArray(shortToByteArray(sequenceNumber));
         addByteArray(shortToByteArray(totalSequenceNumber));
 
-    }
-
-    public void addStateData(byte[] data) {
-        for (byte b : data) {
+        for (byte b : stateData) {
             addData(b);
         }
+    }
+
+    public void addStateData(List<Byte> data) {
+        stateData.addAll(data);
     }
 }
