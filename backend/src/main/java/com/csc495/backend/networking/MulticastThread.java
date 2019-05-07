@@ -54,7 +54,7 @@ public class MulticastThread implements Runnable {
             }
         }
 
-        final short totalPacketsToSend = (short) Math.ceil(data.size() / 507);
+        final short totalPacketsToSend = (short) Math.ceil((double) data.size() / 507);
         short i = 1;
 
         while (true) {
