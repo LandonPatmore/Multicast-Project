@@ -1,4 +1,4 @@
-package com.csc495.backend.utils;
+package com.csc495.backend.packets;
 
 import com.csc495.backend.game.Spot;
 

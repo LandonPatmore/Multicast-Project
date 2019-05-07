@@ -1,7 +1,6 @@
-package com.csc495.backend.utils;
+package com.csc495.backend.packets;
 
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 
 public class JoinPacket extends Packet {
 
