@@ -129,20 +129,10 @@ public class MulticastThread implements Runnable {
     @Override
     public void run() {
         final Game game = new Game();
-        new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(10000);
-                    game.sweepPlayers();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
 
         while (true) {
             final DatagramPacket receivedPacket = receivePacket(); // we actually receive the data here
-            
+
             switch (receivedPacket.getData()[0]) {
                 case 2: // Join packet
                     processJoinPacket(game, receivedPacket);

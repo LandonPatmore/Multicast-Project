@@ -14,6 +14,17 @@ public class Game {
 
     public Game() {
         initializeSpaces();
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(10000);
+                    sweepPlayers();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void initializeSpaces() {
