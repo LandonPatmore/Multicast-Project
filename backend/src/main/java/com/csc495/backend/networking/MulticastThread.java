@@ -27,13 +27,11 @@ public class MulticastThread implements Runnable {
         this.socket = new DatagramSocket(PORT);
     }
 
-    private boolean sendPacket(DatagramPacket packet) {
+    private void sendPacket(DatagramPacket packet) {
         try {
             socket.send(packet);
-            return true;
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
     }
 
@@ -54,7 +52,7 @@ public class MulticastThread implements Runnable {
         final Spot[][] spots = game.getSpots();
         List<Byte> data = new ArrayList<>();
 
-        // Gettings all the bytes of the game and adding them to an arraylist
+        // Getting all the bytes of the game and adding them to an ArrayList
         for (Spot[] spot : spots) {
             for (int j = 0; j < spots[0].length; j++) {
                 for (int k = 0; k < spot[j].getByteArray().length; k++) {
@@ -85,9 +83,47 @@ public class MulticastThread implements Runnable {
         // Sending the state packets
         for (StatePacket statePacket : statePackets) { // TODO: Timeout check
             sendPacket(statePacket.createUnicastPacket());
-            // TODO: Receive the ACKS back from this specific client only somehow
+            // TODO: Receive the ACKs back from this specific client only somehow
+        }
+    }
+
+    private void processJoinPacket(Game game, DatagramPacket packet) {
+        System.out.println("Join packet");
+        final JoinPacket j = new JoinPacket();
+        j.parseSocketData(packet);
+        final Player newPlayer = new Player(packet.getAddress(), packet.getPort(), j.getName());
+        final boolean didAddToGame = game.addPlayerToGame(newPlayer);
+
+        if (!didAddToGame) {
+            final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", packet);
+            sendPacket(e.createUnicastPacket());
         }
 
+        sendState(game, newPlayer);
+    }
+
+    private void processPlayPacket(DatagramPacket packet) {
+        System.out.println("Play packet");
+        final PlayPacket p = new PlayPacket();
+        p.parseSocketData(packet);
+
+        sendPacket(p.createMulticastPacket(group, 4446));
+    }
+
+    private void processHeartbeatPacket(Game game, DatagramPacket packet) {
+        System.out.println("Heartbeat packet");
+        final boolean heartbeatUpdated = game.updatePlayerHeartbeat(packet.getAddress());
+
+        if (!heartbeatUpdated) {
+            final ErrorPacket e = new ErrorPacket("User is not properly connected.  Please exit and try again to authenticate.", packet);
+            sendPacket(e.createUnicastPacket());
+        }
+    }
+
+    private void processInvalidPacket(DatagramPacket packet) {
+        System.out.println("Received unknown code: " + packet.getData()[0]);
+        final ErrorPacket e = new ErrorPacket("Unknown packet code: " + packet.getData()[0], packet);
+        sendPacket(e.createUnicastPacket());
     }
 
     @Override
@@ -106,46 +142,19 @@ public class MulticastThread implements Runnable {
 
         while (true) {
             final DatagramPacket receivedPacket = receivePacket(); // we actually receive the data here
-
-            // TODO: Will split all of these into functions
+            
             switch (receivedPacket.getData()[0]) {
-                case 1: // Encryption packet
-                    System.out.println("Encryption packet");
-                    break;
                 case 2: // Join packet
-                    System.out.println("Join packet");
-                    final JoinPacket j = new JoinPacket();
-                    j.parseSocketData(receivedPacket);
-                    final Player newPlayer = new Player(receivedPacket.getAddress(), receivedPacket.getPort(), j.getName());
-                    final boolean didAddToGame = game.addPlayerToGame(newPlayer);
-
-                    if (!didAddToGame) {
-                        final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", receivedPacket);
-                        sendPacket(e.createUnicastPacket());
-                    }
-
-                    sendState(game, newPlayer);
+                    processJoinPacket(game, receivedPacket);
                     break;
                 case 3: // Play packet
-                    System.out.println("Play packet");
-                    final PlayPacket p = new PlayPacket();
-                    p.parseSocketData(receivedPacket);
-
-                    sendPacket(p.createMulticastPacket(group, 4446));
+                    processPlayPacket(receivedPacket);
                     break;
                 case 5: // Heartbeat packet
-                    System.out.println("Heartbeat packet");
-                    final boolean heartbeatUpdated = game.updatePlayerHeartbeat(receivedPacket.getAddress());
-
-                    if (!heartbeatUpdated) {
-                        final ErrorPacket e = new ErrorPacket("User is not properly connected.  Please exit and try again to authenticate.", receivedPacket);
-                        sendPacket(e.createUnicastPacket());
-                    }
+                    processHeartbeatPacket(game, receivedPacket);
                     break;
                 default:
-                    System.out.println("Received unknown code: " + receivedPacket.getData()[0]);
-                    final ErrorPacket e = new ErrorPacket("Unknown packet code: " + receivedPacket.getData()[0], receivedPacket);
-                    sendPacket(e.createUnicastPacket());
+                    processInvalidPacket(receivedPacket);
             }
         }
     }
