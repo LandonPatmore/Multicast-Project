@@ -1,6 +1,6 @@
-package com.csc495.backend.packets;
+package com.csc445.shared.packets;
 
-import com.csc495.backend.game.Player;
+import com.csc445.shared.game.Player;
 
 import java.net.DatagramPacket;
 import java.util.ArrayList;

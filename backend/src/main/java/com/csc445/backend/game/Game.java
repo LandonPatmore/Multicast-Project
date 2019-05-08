@@ -1,4 +1,7 @@
-package com.csc495.backend.game;
+package com.csc445.backend.game;
+
+import com.csc445.shared.game.Player;
+import com.csc445.shared.game.Spot;
 
 import java.net.InetAddress;
 import java.util.ArrayList;

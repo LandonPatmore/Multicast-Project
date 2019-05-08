@@ -1,4 +1,4 @@
-package com.csc495.backend.packets;
+package com.csc445.shared.packets;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;

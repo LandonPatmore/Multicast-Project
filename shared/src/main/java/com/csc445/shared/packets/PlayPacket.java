@@ -1,6 +1,7 @@
-package com.csc495.backend.packets;
+package com.csc445.shared.packets;
 
-import com.csc495.backend.game.Spot;
+import com.csc445.backend.game.Spot;
+import com.csc445.shared.game.Spot;
 
 import java.net.DatagramPacket;
 

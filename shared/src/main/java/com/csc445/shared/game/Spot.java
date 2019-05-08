@@ -1,4 +1,4 @@
-package com.csc495.backend.game;
+package com.csc445.shared.game;
 
 import java.util.ArrayList;
 import java.util.List;

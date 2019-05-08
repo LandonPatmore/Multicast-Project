@@ -1,12 +1,12 @@
-package com.csc495.backend.networking;
+package com.csc445.backend.networking;
 
-import com.csc495.backend.game.Game;
-import com.csc495.backend.game.Player;
-import com.csc495.backend.game.Spot;
-import com.csc495.backend.packets.ErrorPacket;
-import com.csc495.backend.packets.JoinPacket;
-import com.csc495.backend.packets.PlayPacket;
-import com.csc495.backend.packets.StatePacket;
+import com.csc445.backend.game.Game;
+import com.csc445.shared.game.Player;
+import com.csc445.shared.game.Spot;
+import com.csc445.shared.packets.ErrorPacket;
+import com.csc445.shared.packets.JoinPacket;
+import com.csc445.shared.packets.PlayPacket;
+import com.csc445.shared.packets.StatePacket;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
