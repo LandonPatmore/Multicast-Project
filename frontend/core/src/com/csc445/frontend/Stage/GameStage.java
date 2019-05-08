@@ -1,5 +1,6 @@
 package com.csc445.frontend.Stage;
 
+import com.csc445.frontend.Actors.JoinedPlayers;
 import com.csc445.frontend.Actors.PalletColor;
 import com.csc445.frontend.Actors.Pixel;
 import com.csc445.frontend.Utils.Colors;
@@ -14,6 +15,9 @@ public class GameStage extends Stage {
 
     // Array of Pallet Colors
     private PalletColor[] palletColors = new PalletColor[Colors.values().length];
+
+    // Array of Pallet Colors
+    private JoinedPlayers[] joinedPlayers = new JoinedPlayers[4];
 
     // Pixel size, could be a local variable but like it out here @Landon
     private final int P_SIZE = 10;
@@ -51,6 +55,13 @@ public class GameStage extends Stage {
         for (int i = 0; i < palletColors.length; i++) {
             palletColors[i] = new PalletColor(Colors.values()[i], new Vector2(i * CP_SIZE, 25), CP_SIZE);
             addActor(palletColors[i]);
+        }
+    }
+
+    private void addJoinedPlayers() {
+        for (int i = 0; i < joinedPlayers.length; i++) {
+            joinedPlayers[i] = new JoinedPlayers(new Vector2(4, 25), 4);
+            addActor(joinedPlayers[i]);
         }
     }
 }
