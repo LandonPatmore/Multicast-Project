@@ -2,8 +2,6 @@ buildscript {
     
 
     repositories {
-        mavenLocal()
-        mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         jcenter()
     }
@@ -14,12 +12,9 @@ buildscript {
 }
 
 allprojects {
-    apply plugin: "eclipse"
-    apply plugin: "idea"
-
     version = '1.0'
     ext {
-        appName = "my-gdx-game"
+        appName = "CSC 445 Multicast Project Frontend"
         gdxVersion = '1.9.8'
         roboVMVersion = '2.3.1'
         box2DLightsVersion = '1.4'
@@ -28,34 +23,26 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
-        mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
     }
 }
 
-project(":desktop") {
-    apply plugin: "java"
-
-
+project(":frontend:desktop") {
     dependencies {
-        compile project(":core")
+        compile project(":frontend:core")
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        
     }
 }
 
-project(":core") {
-    apply plugin: "java"
-
-
+project(":frontend:core") {
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
 
         compile ('io.socket:socket.io-client:1.0.0')
-        
+
+        compile project(':shared')
     }
 }
 
