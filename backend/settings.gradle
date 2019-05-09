@@ -1,4 +1,0 @@
-rootProject.name = 'multicast-project-backend'
-
-include "shared"
-
