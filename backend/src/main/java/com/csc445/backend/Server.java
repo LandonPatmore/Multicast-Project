@@ -1,5 +1,6 @@
 package com.csc445.backend;
 
+import com.csc445.backend.game.Game;
 import com.csc445.backend.networking.MulticastThread;
 
 import java.io.IOException;

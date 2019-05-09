@@ -3,16 +3,14 @@ package com.csc445.backend.networking;
 import com.csc445.backend.game.Game;
 import com.csc445.shared.game.Player;
 import com.csc445.shared.game.Spot;
-import com.csc445.shared.packets.ErrorPacket;
-import com.csc445.shared.packets.JoinPacket;
-import com.csc445.shared.packets.PlayPacket;
-import com.csc445.shared.packets.StatePacket;
+import com.csc445.shared.packets.*;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MulticastThread implements Runnable {
@@ -22,17 +20,26 @@ public class MulticastThread implements Runnable {
     private final InetAddress group;
     private final DatagramSocket socket;
 
+    private final Game game;
+    private final HashMap<Integer, PlayPacket> plays;
+
+    private int currentPlayNumber = 1;
+
     public MulticastThread() throws IOException {
         this.group = InetAddress.getByName("224.0.0.192");
         this.socket = new DatagramSocket(PORT);
+        this.game = new Game();
+        this.plays = new HashMap<>();
     }
 
     private void sendPacket(DatagramPacket packet) {
-        try {
-            socket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new Thread(() -> {
+            try {
+                socket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private DatagramPacket receivePacket() {
@@ -48,46 +55,7 @@ public class MulticastThread implements Runnable {
         return null;
     }
 
-    private void sendState(Game game, Player player) {
-        final Spot[][] spots = game.getSpots();
-        List<Byte> data = new ArrayList<>();
-
-        // Getting all the bytes of the game and adding them to an ArrayList
-        for (Spot[] spot : spots) {
-            for (int j = 0; j < spots[0].length; j++) {
-                for (int k = 0; k < spot[j].getByteArray().length; k++) {
-                    data.add(spot[j].getByteArray()[k]);
-                }
-            }
-        }
-
-        // Creating the state packets to send
-        final short totalPacketsToSend = (short) Math.ceil((double) data.size() / 507);
-        short i = 1;
-
-        final List<StatePacket> statePackets = new ArrayList<>();
-        while (true) {
-            final StatePacket statePacket = new StatePacket(player, i, totalPacketsToSend);
-            if (data.size() >= 507) {
-                statePacket.addStateData(data.subList(0, 507));
-                statePackets.add(statePacket);
-                data = data.subList(507, data.size());
-            } else {
-                statePacket.addStateData(data);
-                statePackets.add(statePacket);
-                break;
-            }
-            i++;
-        }
-
-        // Sending the state packets
-        for (StatePacket statePacket : statePackets) { // TODO: Timeout check
-            sendPacket(statePacket.createUnicastPacket());
-            // TODO: Receive the ACKs back from this specific client only somehow
-        }
-    }
-
-    private void processJoinPacket(Game game, DatagramPacket packet) {
+    private void processJoinPacket(DatagramPacket packet) {
         System.out.println("Join packet");
         final JoinPacket j = new JoinPacket();
         j.parseSocketData(packet);
@@ -97,20 +65,22 @@ public class MulticastThread implements Runnable {
         if (!didAddToGame) {
             final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", packet);
             sendPacket(e.createUnicastPacket());
+        } else {
+            final MessagePacket m = new MessagePacket(newPlayer.getName() + " has joined the game.");
+            sendPacket(m.createMulticastPacket(group, 4446));
         }
-
-        sendState(game, newPlayer);
     }
 
     private void processPlayPacket(DatagramPacket packet) {
         System.out.println("Play packet");
         final PlayPacket p = new PlayPacket();
         p.parseSocketData(packet);
+        addPlay(p);
 
         sendPacket(p.createMulticastPacket(group, 4446));
     }
 
-    private void processHeartbeatPacket(Game game, DatagramPacket packet) {
+    private void processHeartbeatPacket(DatagramPacket packet) {
         System.out.println("Heartbeat packet");
         final boolean heartbeatUpdated = game.updatePlayerHeartbeat(packet.getAddress());
 
@@ -120,31 +90,52 @@ public class MulticastThread implements Runnable {
         }
     }
 
+    private void processStateRequestPacket(DatagramPacket packet) {
+        System.out.println("State request packet");
+        final StateRequestPacket s = new StateRequestPacket();
+        s.parseSocketData(packet);
+
+        final PlayPacket playPacket = getPlay(s.getPlayNumber());
+
+        sendPacket(playPacket.createUnicastPacket(packet.getAddress(), packet.getPort()));
+    }
+
     private void processInvalidPacket(DatagramPacket packet) {
         System.out.println("Received unknown code: " + packet.getData()[0]);
         final ErrorPacket e = new ErrorPacket("Unknown packet code: " + packet.getData()[0], packet);
         sendPacket(e.createUnicastPacket());
     }
 
+    private void addPlay(PlayPacket p) {
+        plays.put(currentPlayNumber, p);
+        currentPlayNumber++;
+    }
+
+    private PlayPacket getPlay(int playNumber) {
+        return plays.get(playNumber);
+    }
+
     @Override
     public void run() {
-        final Game game = new Game();
-
         while (true) {
             final DatagramPacket receivedPacket = receivePacket(); // we actually receive the data here
 
-            switch (receivedPacket.getData()[0]) {
-                case 2: // Join packet
-                    processJoinPacket(game, receivedPacket);
-                    break;
-                case 3: // Play packet
-                    processPlayPacket(receivedPacket);
-                    break;
-                case 5: // Heartbeat packet
-                    processHeartbeatPacket(game, receivedPacket);
-                    break;
-                default:
-                    processInvalidPacket(receivedPacket);
+            if (receivedPacket != null) {
+                switch (receivedPacket.getData()[0]) {
+                    case 1: // Join packet
+                        processJoinPacket(receivedPacket);
+                        break;
+                    case 2: // Play packet
+                        processPlayPacket(receivedPacket);
+                        break;
+                    case 3: // Heartbeat packet
+                        processHeartbeatPacket(receivedPacket);
+                        break;
+                    case 6: // State request packet
+                        processStateRequestPacket(receivedPacket);
+                    default:
+                        processInvalidPacket(receivedPacket);
+                }
             }
         }
     }

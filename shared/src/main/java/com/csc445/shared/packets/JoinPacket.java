@@ -6,8 +6,13 @@ public class JoinPacket extends Packet {
 
     private String name;
 
-    public JoinPacket() {
+    public JoinPacket() { // used for incoming join
         super(Type.JOIN);
+    }
+
+    public JoinPacket(String name) {
+        super(Type.JOIN);
+        this.name = name;
     }
 
     @Override

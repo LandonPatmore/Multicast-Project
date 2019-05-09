@@ -74,7 +74,7 @@ public class Game {
         return false;
     }
 
-    public synchronized void sweepPlayers() {
+    private synchronized void sweepPlayers() {
         Iterator<Player> playerIterator = playersList.iterator();
         while (playerIterator.hasNext()) {
             final Player player = playerIterator.next();
@@ -87,7 +87,7 @@ public class Game {
         }
     }
 
-    public void updateSpot(Spot spotToUpdate) {
+    public synchronized void updateSpot(Spot spotToUpdate) {
         final Spot spot = spots[spotToUpdate.getX()][spotToUpdate.getY()];
 
         spot.setName(spotToUpdate.getName());

@@ -10,9 +10,14 @@ public class PlayPacket extends Packet {
 
     private short sequenceNumber;
 
-    public PlayPacket() {
+    public PlayPacket() { // used for incoming play
         super(Type.PlAY);
         spot = new Spot();
+    }
+
+    public PlayPacket(Spot spot) {
+        super(Type.PlAY);
+        this.spot = spot;
     }
 
     @Override
