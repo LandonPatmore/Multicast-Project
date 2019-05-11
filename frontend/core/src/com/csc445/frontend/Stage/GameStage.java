@@ -1,5 +1,9 @@
 package com.csc445.frontend.Stage;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.csc445.frontend.Actors.JoinedPlayers;
 import com.csc445.frontend.Actors.PalletColor;
 import com.csc445.frontend.Actors.Pixel;
@@ -27,6 +31,8 @@ public class GameStage extends Stage {
 
     private final float off_H;
 
+    private int lineCounter;
+
     /**
      * @param viewport ScreenViewport
      */
@@ -37,6 +43,55 @@ public class GameStage extends Stage {
 
         generatePixels();
         addPalletColors();
+        addText();
+    }
+
+    private void addText(){
+        Skin skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
+        Gdx.input.setInputProcessor(this);
+
+        Table container = new Table();
+        this.addActor(container);
+        container.setFillParent(true);
+        container.pad(10).defaults().expandX().fillX().space(4);
+
+        final OpenScrollPane scrollPane = new OpenScrollPane(null, skin);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setFlickScroll(false);
+        scrollPane.setScrollingDisabled(true, false);
+
+        final TextArea textArea = new TextArea("Welcome to PixelArt!.\n"
+                // Adding long text for soft line breaks
+                + "This game was inspired by r/Place. Credits to Landon Patmore, Ye Bhone Myat, Robert , and Benjamin Caro ", skin) {
+            public float getPrefHeight () {
+                float prefHeight = getLines() * getStyle().font.getLineHeight();
+//                float prefHeight = (getLines() + 1) * getStyle().font.getLineHeight(); // Work around
+                TextFieldStyle style = getStyle();
+                if (style.background != null) {
+                    prefHeight = Math.max(prefHeight + style.background.getBottomHeight() + style.background.getTopHeight(), style.background.getMinHeight());
+                }
+                return prefHeight;
+            }
+        };
+        textArea.setDisabled(true);
+
+        scrollPane.setWidget(textArea);
+
+        Button addLineButton = new TextButton("Add new line", skin);
+        addLineButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                textArea.appendText("\nLine " + lineCounter++);
+//                textArea.setCursorPosition(0); // Another work around
+                scrollPane.invalidate();
+                scrollPane.scheduleScrollToBottom(); // See OpenScrollPane below
+            }
+        });
+        container.add(addLineButton).colspan(2);
+
+        container.row().height(500);
+        container.add(scrollPane);
+        container.debugAll();
     }
 
     /**
@@ -63,5 +118,27 @@ public class GameStage extends Stage {
             joinedPlayers[i] = new JoinedPlayers(new Vector2(4, 25), 4);
             addActor(joinedPlayers[i]);
         }
+    }
+
+    public class OpenScrollPane extends ScrollPane {
+
+        private boolean scrollToBottom;
+
+        public OpenScrollPane(Actor widget, Skin skin) {
+            super(widget, skin);
+        }
+
+        public void scheduleScrollToBottom() {
+            scrollToBottom = true;
+        }
+
+        @Override
+        public void layout() {
+            super.layout();
+            if (scrollToBottom) {
+                setScrollY(getMaxY());
+            }
+        }
+
     }
 }
