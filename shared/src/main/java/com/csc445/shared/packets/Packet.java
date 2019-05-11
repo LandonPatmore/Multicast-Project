@@ -1,4 +1,4 @@
-package com.csc495.backend.packets;
+package com.csc445.shared.packets;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -8,12 +8,11 @@ import java.util.List;
 
 public abstract class Packet {
     protected enum Type {
-        ENCRYPTION((byte) 1),
-        JOIN((byte) 2),
-        PlAY((byte) 3),
-        STATE((byte) 4),
-        HEARTBEAT((byte) 5),
-        ACK((byte) 6),
+        JOIN((byte) 1),
+        PlAY((byte) 2),
+        START((byte) 4),
+        MESSAGE((byte) 5),
+        STATE_REQ((byte) 6),
         ERROR((byte) 7);
 
         private final byte value;
@@ -44,11 +43,15 @@ public abstract class Packet {
     protected abstract void createPacketData();
 
     public DatagramPacket createUnicastPacket() {
+        return createUnicastPacket(senderAddress, senderPort);
+    }
+
+    public DatagramPacket createUnicastPacket(InetAddress address, int port) {
         createPacketData();
 
         final byte[] data = arrayListToArrayHelper();
 
-        return new DatagramPacket(data, data.length, senderAddress, senderPort);
+        return new DatagramPacket(data, data.length, address, port);
     }
 
     public DatagramPacket createMulticastPacket(InetAddress address, int port) {
