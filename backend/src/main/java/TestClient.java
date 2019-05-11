@@ -11,6 +11,8 @@ public class TestClient {
         socket.joinGroup(group);
         final InetAddress server = InetAddress.getByName("127.0.0.1");
 
+        System.out.println("Test client started...");
+
         new Thread(() -> {
             while (true) {
                 try {
