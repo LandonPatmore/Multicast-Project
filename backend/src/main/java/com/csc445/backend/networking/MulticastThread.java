@@ -119,8 +119,8 @@ public class MulticastThread implements Runnable {
     public void run() {
         while (true) {
             final DatagramPacket receivedPacket = receivePacket(); // we actually receive the data here
-
             if (receivedPacket != null) {
+                // TODO: decrypt payload
                 switch (receivedPacket.getData()[0]) {
                     case 1: // Join packet
                         processJoinPacket(receivedPacket);

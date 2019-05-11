@@ -49,7 +49,7 @@ public abstract class Packet {
     public DatagramPacket createUnicastPacket(InetAddress address, int port) {
         createPacketData();
 
-        final byte[] data = arrayListToArrayHelper();
+        final byte[] data = arrayListToArrayHelper(); // pass this on to AES encrypt
 
         return new DatagramPacket(data, data.length, address, port);
     }
@@ -57,7 +57,7 @@ public abstract class Packet {
     public DatagramPacket createMulticastPacket(InetAddress address, int port) {
         createPacketData();
 
-        final byte[] data = arrayListToArrayHelper();
+        final byte[] data = arrayListToArrayHelper(); // pass this in to AES encrypt
 
         return new DatagramPacket(data, data.length, address, port);
     }
