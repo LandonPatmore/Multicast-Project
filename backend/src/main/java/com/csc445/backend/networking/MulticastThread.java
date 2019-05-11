@@ -117,6 +117,9 @@ public class MulticastThread implements Runnable {
 
     @Override
     public void run() {
+
+        System.out.println("Server started...");
+
         while (true) {
             final DatagramPacket receivedPacket = receivePacket(); // we actually receive the data here
             if (receivedPacket != null) {

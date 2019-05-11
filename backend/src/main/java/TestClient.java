@@ -11,6 +11,8 @@ public class TestClient {
         socket.joinGroup(group);
         final InetAddress server = InetAddress.getByName("129.3.218.36");
 
+        System.out.println("Test client started...");
+
         new Thread(() -> {
             while (true) {
                 try {
@@ -36,12 +38,5 @@ public class TestClient {
         }
 
         socket.send(new DatagramPacket(buf, buf.length, server, 4445));
-
-        while (true) {
-            byte[] errBuf = new byte[512];
-            final DatagramPacket packet = new DatagramPacket(errBuf, errBuf.length);
-            socket.receive(packet);
-            System.out.println(Arrays.toString(packet.getData()));
-        }
     }
 }
