@@ -39,9 +39,14 @@ public class GameStage extends Stage {
 
     private final Skin skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 
-    public final TextArea textArea = new TextArea("Welcome to PixelArt!.\n"
+    private final Button addJoinButton = new TextButton("JOIN", skin);
+
+    private final TextField passwordTextField = new TextField("Password", skin);
+    private final TextField nameTextField = new TextField("Name", skin);
+
+    public final TextArea textArea = new TextArea("Welcome to PixelArt!\n"
             // Adding long text for soft line breaks
-            + "This game was inspired by r/Place. Credits to Landon Patmore, Ye Bhone Myat, Robert , and Benjamin Caro ", skin) {
+            + "This game was inspired by r/Place. Credits to Landon Patmore, Ye Bhone Myat, Robert Kilmer, and Benjamin Caro ", skin) {
         public float getPrefHeight () {
             float prefHeight = getLines() * getStyle().font.getLineHeight();
 //                float prefHeight = (getLines() + 1) * getStyle().font.getLineHeight(); // Work around
@@ -63,9 +68,11 @@ public class GameStage extends Stage {
 
         off_H = getHeight() / 3;
 
+        Gdx.gl.glClearColor(192/255f, 192/255f, 192/255f, 1);
         generatePixels();
         addPalletColors();
         addText();
+        addJoin();
     }
 
     private void addText(){
@@ -108,6 +115,28 @@ public class GameStage extends Stage {
         container.debugAll();
     }
 
+    private void addJoin(){
+        int buttonPassWidth = 200;
+        int buttonPassHeight = 30;
+        int positionX = 525;
+        int positionY = 100;
+        nameTextField.setPosition(positionX, positionY+buttonPassHeight+5);
+        nameTextField.setSize(buttonPassWidth, buttonPassHeight);
+        passwordTextField.setPosition(positionX,positionY);
+        passwordTextField.setSize(buttonPassWidth, buttonPassHeight);
+        addJoinButton.setSize(buttonPassWidth, buttonPassHeight);
+        addJoinButton.setPosition(positionX, positionY-(buttonPassHeight+5));
+        addJoinButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                passwordTextField.invalidate();
+            }
+        });
+        this.addActor(this.nameTextField);
+        this.addActor(this.passwordTextField);
+        this.addActor(this.addJoinButton);
+    }
+
     /**
      * Generates the pixels that will be rendered on the screen
      */
@@ -127,12 +156,6 @@ public class GameStage extends Stage {
         }
     }
 
-    private void addJoinedPlayers() {
-        for (int i = 0; i < joinedPlayers.length; i++) {
-            joinedPlayers[i] = new JoinedPlayers(new Vector2(4, 25), 4);
-            addActor(joinedPlayers[i]);
-        }
-    }
 
     public class OpenScrollPane extends ScrollPane {
 
