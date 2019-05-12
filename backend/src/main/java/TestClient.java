@@ -10,7 +10,7 @@ public class TestClient {
         final MulticastSocket socket = new MulticastSocket(Constants.GROUP_PORT);
         final InetAddress group = InetAddress.getByName(Constants.GROUP_ADDRESS);
         socket.joinGroup(group);
-        final InetAddress server = InetAddress.getByName("pi.cs.oswego.edu");
+        final InetAddress server = InetAddress.getByName("127.0.0.1");
 
         System.out.println("Test client started...");
         System.out.println(group);
