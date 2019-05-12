@@ -1,6 +1,7 @@
 package com.csc445.shared.packets;
 
 import com.csc445.shared.utils.AES;
+import com.csc445.shared.utils.Constants;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -29,9 +30,7 @@ public abstract class Packet {
         }
     }
 
-    public static final int SIZE = 512;
-
-    private List<Byte> data = new ArrayList<>(SIZE);
+    private List<Byte> data = new ArrayList<>(Constants.PACKET_SIZE);
     private final Type type;
 
     private InetAddress senderAddress;
@@ -45,22 +44,15 @@ public abstract class Packet {
 
     protected abstract void createPacketData();
 
-    public DatagramPacket createUnicastPacket() throws InvalidKeyException {
-        return createUnicastPacket(senderAddress, senderPort);
+    public DatagramPacket createPacket(String secretKey) throws InvalidKeyException {
+        return createPacket(senderAddress, senderPort, secretKey);
     }
 
-    public DatagramPacket createUnicastPacket(InetAddress address, int port) throws InvalidKeyException {
+    public DatagramPacket createPacket(InetAddress address, int port, String secretKey) throws InvalidKeyException {
         createPacketData();
 
-        final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), AES.TEST_PASSWORD);
-
-        return new DatagramPacket(data, data.length, address, port);
-    }
-
-    public DatagramPacket createMulticastPacket(InetAddress address, int port) throws InvalidKeyException {
-        createPacketData();
-
-		final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), AES.TEST_PASSWORD);
+//        final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), secretKey); // TODO: Need to figure out why this is not working
+        final byte[] data = arrayListToArrayHelper();
 
         return new DatagramPacket(data, data.length, address, port);
     }
