@@ -1,8 +1,11 @@
 package com.csc445.shared.packets;
 
+import com.csc445.shared.utils.AES;
+
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,22 +45,22 @@ public abstract class Packet {
 
     protected abstract void createPacketData();
 
-    public DatagramPacket createUnicastPacket() {
+    public DatagramPacket createUnicastPacket() throws InvalidKeyException {
         return createUnicastPacket(senderAddress, senderPort);
     }
 
-    public DatagramPacket createUnicastPacket(InetAddress address, int port) {
+    public DatagramPacket createUnicastPacket(InetAddress address, int port) throws InvalidKeyException {
         createPacketData();
 
-        final byte[] data = arrayListToArrayHelper();
+        final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), AES.TEST_PASSWORD);
 
         return new DatagramPacket(data, data.length, address, port);
     }
 
-    public DatagramPacket createMulticastPacket(InetAddress address, int port) {
+    public DatagramPacket createMulticastPacket(InetAddress address, int port) throws InvalidKeyException {
         createPacketData();
 
-        final byte[] data = arrayListToArrayHelper();
+		final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), AES.TEST_PASSWORD);
 
         return new DatagramPacket(data, data.length, address, port);
     }

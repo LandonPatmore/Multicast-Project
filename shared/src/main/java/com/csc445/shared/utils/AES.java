@@ -1,10 +1,17 @@
 package com.csc445.shared.utils;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 public class AES {
+
+	public static final String TEST_PASSWORD = "123The Legend 69";
+
     /**
      * Encrypts <code>plainText</code> with <code>secretKey</code>
      * using AES.
@@ -15,7 +22,7 @@ public class AES {
      * @param secretKey the key to encrypt <code>plainText</code> with
      * @return the byte array <code>ciphertext</code>
      */
-    public static byte[] encryptByteArray( byte[] plainText , String secretKey)  {
+    public static byte[] encryptByteArray( byte[] plainText , String secretKey) throws InvalidKeyException {
         Cipher cipher;
         SecretKeySpec secret;
         byte[] cipherText = null;
@@ -23,14 +30,14 @@ public class AES {
             cipher = Cipher.getInstance("AES");
             secret = new SecretKeySpec(secretKey.getBytes(), "AES");
             cipher.init(Cipher.ENCRYPT_MODE, secret);
+            // TODO: make sure cipherText stays below 500 bytes
             cipherText = cipher.doFinal(plainText);
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (Exception e){
-            // ignored
-        }
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException 	|
+				BadPaddingException | IllegalBlockSizeException e) {
+			// ignored
+		}
 
-        return cipherText;
+		return cipherText;
     }
 
     /**
@@ -43,7 +50,7 @@ public class AES {
      * @param secretKey the key to decrypt <code>cipherText</code> with
      * @return the byte array <code>plainText</code>
      */
-    public static byte[] decryptByteArray( byte[] cipherText , String secretKey)  {
+    public static byte[] decryptByteArray( byte[] cipherText , String secretKey) throws InvalidKeyException {
         Cipher cipher;
         SecretKeySpec secret;
         byte[] plainText = null;
@@ -52,11 +59,10 @@ public class AES {
             secret = new SecretKeySpec(secretKey.getBytes(), "AES");
             cipher.init(Cipher.DECRYPT_MODE, secret);
             plainText = cipher.doFinal(cipherText);
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (Exception e){
-            // ignored
-        }
+        }  catch (NoSuchAlgorithmException | NoSuchPaddingException 	|
+				BadPaddingException | IllegalBlockSizeException e) {
+			// ignored
+		}
 
         return plainText;
     }
