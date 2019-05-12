@@ -10,8 +10,6 @@ import java.security.NoSuchAlgorithmException;
 
 public class AES {
 
-	public static final String TEST_PASSWORD = "123The Legend 69";
-
     /**
      * Encrypts <code>plainText</code> with <code>secretKey</code>
      * using AES.

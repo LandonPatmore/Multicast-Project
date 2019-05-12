@@ -8,4 +8,5 @@ public class Constants {
     public static final int SERVER_PORT = 4445;
 
     public static final int PACKET_SIZE = 512;
+    public static final int AES_SIZE = 16;
 }

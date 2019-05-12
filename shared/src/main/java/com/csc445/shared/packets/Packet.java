@@ -44,14 +44,15 @@ public abstract class Packet {
 
     protected abstract void createPacketData();
 
-    public DatagramPacket createPacket() {
-        return createPacket(senderAddress, senderPort);
+    public DatagramPacket createPacket(String secretKey) throws InvalidKeyException {
+        return createPacket(senderAddress, senderPort, secretKey);
     }
 
-    public DatagramPacket createPacket(InetAddress address, int port) {
+    public DatagramPacket createPacket(InetAddress address, int port, String secretKey) throws InvalidKeyException {
         createPacketData();
 
-		final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), AES.TEST_PASSWORD);
+//        final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), secretKey); // TODO: Need to figure out why this is not working
+        final byte[] data = arrayListToArrayHelper();
 
         return new DatagramPacket(data, data.length, address, port);
     }
