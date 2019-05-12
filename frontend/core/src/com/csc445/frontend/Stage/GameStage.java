@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.csc445.frontend.Actors.JoinedPlayers;
 import com.csc445.frontend.Actors.PalletColor;
 import com.csc445.frontend.Actors.Pixel;
 import com.csc445.frontend.Utils.Colors;
@@ -21,9 +19,6 @@ public class GameStage extends Stage {
 
     // Array of Pallet Colors
     private PalletColor[] palletColors = new PalletColor[Colors.values().length];
-
-    // Array of Pallet Colors
-    private JoinedPlayers[] joinedPlayers = new JoinedPlayers[4];
 
     // Pixel size, could be a local variable but like it out here @Landon
     private final int P_SIZE = 10;
