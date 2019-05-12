@@ -2,7 +2,6 @@ package com.csc445.backend.utils;
 
 import com.csc445.shared.utils.Constants;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public class Utils {

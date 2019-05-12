@@ -44,11 +44,11 @@ public abstract class Packet {
 
     protected abstract void createPacketData();
 
-    public DatagramPacket createPacket(String secretKey) throws InvalidKeyException {
+    public DatagramPacket createPacket(String secretKey) {
         return createPacket(senderAddress, senderPort, secretKey);
     }
 
-    public DatagramPacket createPacket(InetAddress address, int port, String secretKey) throws InvalidKeyException {
+    public DatagramPacket createPacket(InetAddress address, int port, String secretKey) {
         createPacketData();
 
         final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), secretKey);

@@ -95,8 +95,4 @@ public class Game {
 
         System.out.println("Spot (" + spot.getX() + "," + spot.getY() + ") updated - Name: " + spot.getName() + " | Color: " + spot.getColor());
     }
-
-    public Spot[][] getSpots() {
-        return spots;
-    }
 }

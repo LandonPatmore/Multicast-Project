@@ -17,8 +17,6 @@ import java.util.HashMap;
 
 public class MulticastThread implements Runnable {
 
-    private static final int PORT = 4445;
-
     private final InetAddress group;
     private final DatagramSocket socket;
 
@@ -32,8 +30,8 @@ public class MulticastThread implements Runnable {
     public MulticastThread() throws IOException {
         this.secretKey = AES.TEST_PASSWORD;
 
-        this.group = InetAddress.getByName("224.0.0.192");
-        this.socket = new DatagramSocket(PORT);
+        this.group = InetAddress.getByName(Constants.GROUP_ADDRESS);
+        this.socket = new DatagramSocket(Constants.SERVER_PORT);
         this.game = new Game();
         this.plays = new HashMap<>();
     }
@@ -71,16 +69,10 @@ public class MulticastThread implements Runnable {
 
         if (!didAddToGame) {
             final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", packet);
-            try {
-                sendPacket(e.createPacket(secretKey));
-            } catch (InvalidKeyException ignored) {
-            }
+            sendPacket(e.createPacket(secretKey));
         } else {
             final MessagePacket m = new MessagePacket(newPlayer.getName() + " has joined the game.");
-            try {
-                sendPacket(m.createPacket(group, 4446, secretKey));
-            } catch (InvalidKeyException ignored) {
-            }
+            sendPacket(m.createPacket(group, 4446, secretKey));
         }
     }
 
@@ -90,11 +82,10 @@ public class MulticastThread implements Runnable {
         final PlayPacket p = new PlayPacket();
         p.parseSocketData(packet);
         addPlay(p);
+        game.updateSpot(p.getSpot());
 
-        try {
-            sendPacket(p.createPacket(group, 4446, secretKey));
-        } catch (InvalidKeyException ignored) {
-        }
+
+        sendPacket(p.createPacket(group, 4446, secretKey));
     }
 
     private void processHeartbeatPacket(DatagramPacket packet) {
@@ -104,10 +95,7 @@ public class MulticastThread implements Runnable {
 
         if (!heartbeatUpdated) {
             final ErrorPacket e = new ErrorPacket("User is not properly connected.  Please exit and try again to authenticate.", packet);
-            try {
-                sendPacket(e.createPacket(secretKey));
-            } catch (InvalidKeyException ignored) {
-            }
+            sendPacket(e.createPacket(secretKey));
         }
     }
 
@@ -119,30 +107,22 @@ public class MulticastThread implements Runnable {
 
         final PlayPacket playPacket = getPlay(s.getPlayNumber());
 
-        try {
-            sendPacket(playPacket.createPacket(packet.getAddress(), packet.getPort(), secretKey));
-        } catch (InvalidKeyException ignored) {
-        }
+        sendPacket(playPacket.createPacket(packet.getAddress(), packet.getPort(), secretKey));
     }
 
     private void processInvalidPacket(DatagramPacket packet) {
         System.out.println("Received unknown code: " + packet.getData()[0]);
 
         final ErrorPacket e = new ErrorPacket("Unknown packet code: " + packet.getData()[0], packet);
-        try {
-            sendPacket(e.createPacket(secretKey));
-        } catch (InvalidKeyException ignored) {
-        }
+        sendPacket(e.createPacket(secretKey));
     }
 
     private void processWrongPassword(DatagramPacket packet) {
         System.out.println("Cannot decrypt packet from " + packet.getAddress());
 
         final ErrorPacket e = new ErrorPacket("Cannot decrypt packet", packet);
-        try {
-            sendPacket(e.createPacket(secretKey));
-        } catch (InvalidKeyException ignored) { // server always has the correct password
-        }
+
+        sendPacket(e.createPacket(secretKey));
     }
 
     private void addPlay(PlayPacket p) {
