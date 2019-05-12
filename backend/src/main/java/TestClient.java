@@ -2,7 +2,6 @@ import com.csc445.shared.utils.Constants;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Arrays;
 
 public class TestClient {
 
@@ -11,9 +10,10 @@ public class TestClient {
         final MulticastSocket socket = new MulticastSocket(Constants.GROUP_PORT);
         final InetAddress group = InetAddress.getByName(Constants.GROUP_ADDRESS);
         socket.joinGroup(group);
-        final InetAddress server = InetAddress.getByName("129.3.218.36");
+        final InetAddress server = InetAddress.getByName("pi.cs.oswego.edu");
 
         System.out.println("Test client started...");
+        System.out.println(group);
 
 //        new Thread(() -> {
 //            while (true) {
