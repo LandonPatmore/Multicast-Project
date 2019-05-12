@@ -62,16 +62,12 @@ public class MulticastThread implements Runnable {
 		final Player newPlayer = new Player(packet.getAddress(), packet.getPort(), j.getName());
 		final boolean didAddToGame = game.addPlayerToGame(newPlayer);
 
-		try {
-			if (!didAddToGame) {
-				final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", packet);
-				sendPacket(e.createUnicastPacket());
-			} else {
-				final MessagePacket m = new MessagePacket(newPlayer.getName() + " has joined the game.");
-				sendPacket(m.createMulticastPacket(group, 4446));
-			}
-		} catch (InvalidKeyException e){
-			// ignored; Server always has correct key
+		if (!didAddToGame) {
+			final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", packet);
+			sendPacket(e.createPacket());
+		} else {
+			final MessagePacket m = new MessagePacket(newPlayer.getName() + " has joined the game.");
+			sendPacket(m.createPacket(group, 4446));
 		}
 	}
 
@@ -81,11 +77,7 @@ public class MulticastThread implements Runnable {
 		p.parseSocketData(packet);
 		addPlay(p);
 
-		try {
-			sendPacket(p.createMulticastPacket(group, 4446));
-		} catch (InvalidKeyException e) {
-			// ignored; Server always has correct key
-		}
+		sendPacket(p.createPacket(group, 4446));
 	}
 
 	private void processHeartbeatPacket(DatagramPacket packet) {
@@ -94,11 +86,7 @@ public class MulticastThread implements Runnable {
 
 		if (!heartbeatUpdated) {
 			final ErrorPacket e = new ErrorPacket("User is not properly connected.  Please exit and try again to authenticate.", packet);
-			try {
-				sendPacket(e.createUnicastPacket());
-			} catch (InvalidKeyException e1) {
-				// ignored; Server always has correct key
-			}
+			sendPacket(e.createPacket());
 		}
 	}
 
@@ -109,31 +97,19 @@ public class MulticastThread implements Runnable {
 
 		final PlayPacket playPacket = getPlay(s.getPlayNumber());
 
-		try {
-			sendPacket(playPacket.createUnicastPacket(packet.getAddress(), packet.getPort()));
-		} catch (InvalidKeyException e) {
-			// ignored; Server always has correct key
-		}
+		sendPacket(playPacket.createPacket(packet.getAddress(), packet.getPort()));
 	}
 
 	private void processInvalidPacket(DatagramPacket packet) {
 		System.out.println("Received unknown code: " + packet.getData()[0]);
 		final ErrorPacket e = new ErrorPacket("Unknown packet code: " + packet.getData()[0], packet);
-		try {
-			sendPacket(e.createUnicastPacket());
-		} catch (InvalidKeyException e1) {
-			// ignored; Server always has correct key
-		}
+		sendPacket(e.createPacket());
 	}
 
 	private void processWrongPassword(DatagramPacket packet) {
 		System.out.println("Cannot decrypt packet from " + packet.getAddress());
 		final ErrorPacket e = new ErrorPacket("Cannot decrypt packet", packet);
-		try {
-			sendPacket(e.createUnicastPacket());
-		} catch (InvalidKeyException e1) {
-			// ignored; Server always has correct key
-		}
+		sendPacket(e.createPacket());
 	}
 
 	private void addPlay(PlayPacket p) {
