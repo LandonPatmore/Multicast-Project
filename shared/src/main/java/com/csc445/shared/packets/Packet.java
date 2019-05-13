@@ -51,8 +51,8 @@ public abstract class Packet {
     public DatagramPacket createPacket(InetAddress address, int port, String secretKey) throws InvalidKeyException {
         createPacketData();
 
-//        final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), secretKey); // TODO: Need to figure out why this is not working
-        final byte[] data = arrayListToArrayHelper();
+        final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), secretKey);
+//        final byte[] data = arrayListToArrayHelper();
 
         return new DatagramPacket(data, data.length, address, port);
     }

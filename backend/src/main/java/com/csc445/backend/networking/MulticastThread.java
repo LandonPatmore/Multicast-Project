@@ -12,6 +12,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.security.InvalidKeyException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class MulticastThread implements Runnable {
@@ -29,7 +30,7 @@ public class MulticastThread implements Runnable {
     private final String secretKey;
 
     public MulticastThread() throws IOException {
-        this.secretKey = Utils.passwordGenerator();
+        this.secretKey = AES.TEST_PASSWORD;
 
         this.group = InetAddress.getByName("224.0.0.192");
         this.socket = new DatagramSocket(PORT);
@@ -153,10 +154,25 @@ public class MulticastThread implements Runnable {
         return plays.get(playNumber);
     }
 
-    private byte[] decryptPacket(DatagramPacket packet) {
-        return packet.getData();
-//            return AES.decryptByteArray(packet.getData(), secretKey); // TODO: Need to figure out what is going wrong here
-    }
+	/**
+	 * Does what it says on the tin
+	 *
+	 * Payload of <code>packet</code> is trimmed from offset to length of data received
+	 * because otherwise it would mess up the padding and make <code>AES.decryptByteArray</code>
+	 * throw a hissy fit
+	 *
+	 * @param packet packet to be decrypted
+	 * @return decrypted payload of <code>packet</code>, or <code>null</code> if decryption failed
+	 */
+	private byte[] decryptPacket(DatagramPacket packet) {
+		try {
+			return AES.decryptByteArray(Arrays.copyOfRange(packet.getData(),
+					packet.getOffset(), packet.getLength()), secretKey);
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
     @Override
     public void run() {
@@ -173,6 +189,7 @@ public class MulticastThread implements Runnable {
                 if (decryptedData == null) {
                     processWrongPassword(receivedPacket);
                 } else {
+                	receivedPacket.setData(decryptedData);
                     switch (receivedPacket.getData()[0]) {
                         case 1: // Join packet
                             processJoinPacket(receivedPacket);
