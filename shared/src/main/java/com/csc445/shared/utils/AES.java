@@ -34,7 +34,7 @@ public class AES {
 		try {
 			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			secret = new SecretKeySpec(secretKey.getBytes(), "AES");
-			iv = Base64.getEncoder().encode(SecureRandom.getSeed(16));
+			iv = SecureRandom.getSeed(16);
 			cipher.init(Cipher.ENCRYPT_MODE, secret, new IvParameterSpec(iv));
 			// TODO: make sure cipherText stays below 500 bytes
 			byte[] encrypted = cipher.doFinal(plainText);
@@ -66,13 +66,14 @@ public class AES {
 		SecretKeySpec secret;
 		byte[] plainText = null;
 		try {
+            System.out.println(cipherText.length);
 			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			secret = new SecretKeySpec(secretKey.getBytes(), "AES");
 			// extract and decode iv from payload
-			byte[] iv = Base64.getDecoder().decode(Arrays.copyOfRange(cipherText, 0, 16));
+			byte[] iv = Arrays.copyOfRange(cipherText, 0, 16);
 			cipher.init(Cipher.DECRYPT_MODE, secret,
 					new IvParameterSpec(iv));
-			plainText = cipher.doFinal(Arrays.copyOfRange(cipherText, 16, cipherText.length));
+			plainText = cipher.doFinal(Arrays.copyOfRange(cipherText, iv.length, cipherText.length));
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException |
 				BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
 			e.printStackTrace();
