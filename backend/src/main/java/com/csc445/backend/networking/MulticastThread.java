@@ -154,10 +154,20 @@ public class MulticastThread implements Runnable {
         return plays.get(playNumber);
     }
 
-    private byte[] decryptPacket(DatagramPacket packet) {
-//        return packet.getData();
+	/**
+	 * Does what it says on the tin
+	 *
+	 * Payload of <code>packet</code> is trimmed from offset to length of data received
+	 * because otherwise it would mess up the padding and make <code>AES.decryptByteArray</code>
+	 * throw a hissy fit
+	 *
+	 * @param packet packet to be decrypted
+	 * @return decrypted payload of <code>packet</code>, or <code>null</code> if decryption failed
+	 */
+	private byte[] decryptPacket(DatagramPacket packet) {
 		try {
-			return AES.decryptByteArray(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()), secretKey);
+			return AES.decryptByteArray(Arrays.copyOfRange(packet.getData(),
+					packet.getOffset(), packet.getLength()), secretKey);
 		} catch (InvalidKeyException e) {
 			e.printStackTrace();
 		}

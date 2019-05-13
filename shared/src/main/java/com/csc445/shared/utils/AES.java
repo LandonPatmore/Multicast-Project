@@ -15,8 +15,20 @@ public class AES {
 	public static final String TEST_PASSWORD = "123The Legend 69";
 
 	/**
-	 * Encrypts <code>plainText</code> with <code>secretKey</code>
-	 * using AES.
+	 * <p>Encrypts <code>plainText</code> with <code>secretKey</code>
+	 * using AES.</p>
+	 *
+	 * <p>Data is encrypted using AES in CBC mode, with PKCS5 padding.</p>
+	 *
+	 * <p>CBC mode requires an initialization vector (<code>iv</code>)
+	 * which must be different if the same <code>secretKey</code> is reused.
+	 * This method generated a new <code>iv</code> every time it is called,
+	 * regardless of the <code>secretKey</code>.</p>
+	 *
+	 * <p>Size of <code>cipherText</code> is calculated as follows:<br/>
+	 * <code>cipherText.length == ((plainText.length / 16) + 1) * 16</code>
+	 * </p>
+	 *
 	 *
 	 * @param plainText the byte array to be encrypted
 	 * @param secretKey the key to encrypt <code>plainText</code> with
@@ -67,7 +79,6 @@ public class AES {
 		SecretKeySpec secret;
 		byte[] plainText = null;
 		try {
-            System.out.println(cipherText.length);
 			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			secret = new SecretKeySpec(secretKey.getBytes(), "AES");
 			// extract and decode iv from payload

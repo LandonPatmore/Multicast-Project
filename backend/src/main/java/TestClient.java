@@ -52,18 +52,7 @@ public class TestClient {
 			e.printStackTrace();
 		}
 
-//		byte[] encoded = Base64.getEncoder().encode(buf);
-//
-		System.out.println(buf.length);
-
-//		try {
-//			buf = AES.decryptByteArray(buf, secretKey);
-//		} catch (InvalidKeyException e) {
-//			e.printStackTrace();
-//		}
-
 		socket.send(new DatagramPacket(buf, buf.length, server, Constants.SERVER_PORT));
-		System.out.println((int) buf[0]);
         while (true) {
             final byte[] rBuf = new byte[Constants.PACKET_SIZE];
             final DatagramPacket receivedPacket = new DatagramPacket(rBuf, rBuf.length);
