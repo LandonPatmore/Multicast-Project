@@ -1,19 +1,22 @@
-package com.csc495.backend.packets;
+package com.csc445.shared.packets;
+
+import com.csc445.shared.utils.AES;
+import com.csc445.shared.utils.Constants;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Packet {
     protected enum Type {
-        ENCRYPTION((byte) 1),
-        JOIN((byte) 2),
-        PlAY((byte) 3),
-        STATE((byte) 4),
-        HEARTBEAT((byte) 5),
-        ACK((byte) 6),
+        JOIN((byte) 1),
+        PlAY((byte) 2),
+        START((byte) 4),
+        MESSAGE((byte) 5),
+        STATE_REQ((byte) 6),
         ERROR((byte) 7);
 
         private final byte value;
@@ -27,9 +30,7 @@ public abstract class Packet {
         }
     }
 
-    public static final int SIZE = 512;
-
-    private List<Byte> data = new ArrayList<>(SIZE);
+    private List<Byte> data = new ArrayList<>(Constants.PACKET_SIZE);
     private final Type type;
 
     private InetAddress senderAddress;
@@ -43,18 +44,15 @@ public abstract class Packet {
 
     protected abstract void createPacketData();
 
-    public DatagramPacket createUnicastPacket() {
-        createPacketData();
-
-        final byte[] data = arrayListToArrayHelper();
-
-        return new DatagramPacket(data, data.length, senderAddress, senderPort);
+    public DatagramPacket createPacket(String secretKey) throws InvalidKeyException {
+        return createPacket(senderAddress, senderPort, secretKey);
     }
 
-    public DatagramPacket createMulticastPacket(InetAddress address, int port) {
+    public DatagramPacket createPacket(InetAddress address, int port, String secretKey) throws InvalidKeyException {
         createPacketData();
 
-        final byte[] data = arrayListToArrayHelper();
+        final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), secretKey);
+//        final byte[] data = arrayListToArrayHelper();
 
         return new DatagramPacket(data, data.length, address, port);
     }

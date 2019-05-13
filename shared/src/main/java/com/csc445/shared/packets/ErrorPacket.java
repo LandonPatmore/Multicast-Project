@@ -1,21 +1,25 @@
-package com.csc495.backend.packets;
+package com.csc445.shared.packets;
 
 import java.net.DatagramPacket;
 
 public class ErrorPacket extends Packet {
 
-    private final String errorMessage;
+    private String errorMessage;
 
-    public ErrorPacket(String errorMessage, DatagramPacket previousPacket) {
+    public ErrorPacket() {
+        super(Type.ERROR);
+    }
+
+    public ErrorPacket(String errorMessage, DatagramPacket sender) {
         super(Type.ERROR);
         this.errorMessage = errorMessage;
-        setSenderAddress(previousPacket.getAddress());
-        setSenderPort(previousPacket.getPort());
+        setSenderAddress(sender.getAddress());
+        setSenderPort(sender.getPort());
     }
 
     @Override
     public void parseSocketData(DatagramPacket packet) {
-
+        errorMessage = new String(packet.getData(), 1, packet.getLength() - 1);
     }
 
     @Override

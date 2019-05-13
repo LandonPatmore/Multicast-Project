@@ -1,4 +1,7 @@
-package com.csc495.backend.game;
+package com.csc445.backend.game;
+
+import com.csc445.shared.game.Player;
+import com.csc445.shared.game.Spot;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -14,6 +17,17 @@ public class Game {
 
     public Game() {
         initializeSpaces();
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(10000);
+                    sweepPlayers();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void initializeSpaces() {
@@ -60,7 +74,7 @@ public class Game {
         return false;
     }
 
-    public synchronized void sweepPlayers() {
+    private synchronized void sweepPlayers() {
         Iterator<Player> playerIterator = playersList.iterator();
         while (playerIterator.hasNext()) {
             final Player player = playerIterator.next();
@@ -73,7 +87,7 @@ public class Game {
         }
     }
 
-    public void updateSpot(Spot spotToUpdate) {
+    public synchronized void updateSpot(Spot spotToUpdate) {
         final Spot spot = spots[spotToUpdate.getX()][spotToUpdate.getY()];
 
         spot.setName(spotToUpdate.getName());
