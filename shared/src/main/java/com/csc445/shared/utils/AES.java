@@ -67,6 +67,7 @@ public class AES {
 		SecretKeySpec secret;
 		byte[] plainText = null;
 		try {
+            System.out.println(cipherText.length);
 			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			secret = new SecretKeySpec(secretKey.getBytes(), "AES");
 			// extract and decode iv from payload

@@ -12,6 +12,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.security.InvalidKeyException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class MulticastThread implements Runnable {
@@ -156,7 +157,7 @@ public class MulticastThread implements Runnable {
     private byte[] decryptPacket(DatagramPacket packet) {
 //        return packet.getData();
 		try {
-			return AES.decryptByteArray(packet.getData(), secretKey);
+			return AES.decryptByteArray(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()), secretKey);
 		} catch (InvalidKeyException e) {
 			e.printStackTrace();
 		}
