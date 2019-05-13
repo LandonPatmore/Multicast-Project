@@ -30,7 +30,11 @@ public class GameStage extends Stage {
 
     private final int textHeight = 500;
 
-    private final int textWidth = 200;
+    private final int textWidth = 225;
+
+    private String name;
+
+    private String pass;
 
     private final Skin skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 
@@ -71,19 +75,21 @@ public class GameStage extends Stage {
     }
 
     private void addText(){
+        int xPos = 513;
+        int yPos = 200;
         Gdx.input.setInputProcessor(this);
         Table container = new Table();
         this.addActor(container);
         container.setColor(Color.BLUE);
         container.setSize(textWidth, textHeight);
-        container.setPosition(525, 200);
+        container.setPosition(xPos, yPos);
         container.row().width(textWidth);
         container.row().height(textHeight);
         container.pad(10).defaults().expandX().fillX().space(4);
 
         final OpenScrollPane scrollPane = new OpenScrollPane(null, skin);
         scrollPane.setSize(textWidth, textHeight);
-        scrollPane.setPosition(525, 200);
+        scrollPane.setPosition(xPos, yPos);
 //        scrollPane.setColor(Color.BLUE);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setFlickScroll(false);
@@ -94,17 +100,18 @@ public class GameStage extends Stage {
 
         scrollPane.setWidget(textArea);
 
-        /*Button addLineButton = new TextButton("Add new line", skin);
+        Button addLineButton = new TextButton("Add new line", skin);
+        addLineButton.setPosition(525, 710);
+        addLineButton.setSize(200, 30);
         addLineButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 textArea.appendText("\nLine " + lineCounter++);
-//                textArea.setCursorPosition(0); // Another work around
                 scrollPane.invalidate();
                 scrollPane.scheduleScrollToBottom(); // See OpenScrollPane below
             }
         });
-        container.add(addLineButton).padTop(3);*/
+        this.addActor(addLineButton);
 
         container.add(scrollPane);
         container.debugAll();
@@ -124,7 +131,12 @@ public class GameStage extends Stage {
         addJoinButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                name = nameTextField.getText();
+                pass = passwordTextField.getText();
+                System.out.println("Name: "+name+"\nPassword: "+pass);
+                nameTextField.invalidate();
                 passwordTextField.invalidate();
+                addJoinButton.invalidate();
             }
         });
         this.addActor(this.nameTextField);
