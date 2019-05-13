@@ -29,7 +29,7 @@ public class MulticastThread implements Runnable {
     private final String secretKey;
 
     public MulticastThread() throws IOException {
-        this.secretKey = Utils.passwordGenerator();
+        this.secretKey = AES.TEST_PASSWORD;
 
         this.group = InetAddress.getByName("224.0.0.192");
         this.socket = new DatagramSocket(PORT);
@@ -154,9 +154,14 @@ public class MulticastThread implements Runnable {
     }
 
     private byte[] decryptPacket(DatagramPacket packet) {
-        return packet.getData();
-//            return AES.decryptByteArray(packet.getData(), secretKey); // TODO: Need to figure out what is going wrong here
-    }
+//        return packet.getData();
+		try {
+			return AES.decryptByteArray(packet.getData(), secretKey);
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
     @Override
     public void run() {
@@ -173,6 +178,7 @@ public class MulticastThread implements Runnable {
                 if (decryptedData == null) {
                     processWrongPassword(receivedPacket);
                 } else {
+                	receivedPacket.setData(decryptedData);
                     switch (receivedPacket.getData()[0]) {
                         case 1: // Join packet
                             processJoinPacket(receivedPacket);

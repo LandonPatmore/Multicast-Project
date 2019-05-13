@@ -1,7 +1,12 @@
+import com.csc445.shared.utils.AES;
 import com.csc445.shared.utils.Constants;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.*;
+import java.security.InvalidKeyException;
+import java.util.Arrays;
+import java.util.Base64;
 
 public class TestClient {
 
@@ -10,10 +15,12 @@ public class TestClient {
         final MulticastSocket socket = new MulticastSocket(Constants.GROUP_PORT);
         final InetAddress group = InetAddress.getByName(Constants.GROUP_ADDRESS);
         socket.joinGroup(group);
-        final InetAddress server = InetAddress.getByName("127.0.0.1");
+        final InetAddress server = InetAddress.getByName("192.168.1.94");
 
         System.out.println("Test client started...");
         System.out.println(group);
+
+        String secretKey = AES.TEST_PASSWORD;
 
 //        new Thread(() -> {
 //            while (true) {
@@ -39,13 +46,36 @@ public class TestClient {
             buf[i + 1] = name.getBytes()[i];
         }
 
-        socket.send(new DatagramPacket(buf, buf.length, server, Constants.SERVER_PORT));
+		try {
+			buf = AES.encryptByteArray(buf, secretKey);
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		}
 
+//		byte[] encoded = Base64.getEncoder().encode(buf);
+//
+		System.out.println(buf.length);
+
+//		try {
+//			buf = AES.decryptByteArray(buf, secretKey);
+//		} catch (InvalidKeyException e) {
+//			e.printStackTrace();
+//		}
+
+		socket.send(new DatagramPacket(buf, buf.length, server, Constants.SERVER_PORT));
+		System.out.println((int) buf[0]);
         while (true) {
             final byte[] rBuf = new byte[Constants.PACKET_SIZE];
             final DatagramPacket receivedPacket = new DatagramPacket(rBuf, rBuf.length);
             socket.receive(receivedPacket);
-            System.out.println(new String(receivedPacket.getData(), 0, receivedPacket.getLength()));
+            byte[] data = Arrays.copyOfRange(receivedPacket.getData(), 0, receivedPacket.getLength());
+			try {
+				data = AES.decryptByteArray(data, secretKey);
+				System.out.println(new String(data, 1, data.length - 1));
+			} catch (InvalidKeyException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
         }
     }
 }
