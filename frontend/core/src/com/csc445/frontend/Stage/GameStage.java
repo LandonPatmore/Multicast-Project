@@ -36,16 +36,17 @@ public class GameStage extends Stage {
 
     private String pass;
 
-    private final Skin skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
+    private final Skin whiteSkin = new Skin(Gdx.files.internal("skins/whitefont/uiskin.json"));
+    private final Skin altSkin = new Skin(Gdx.files.internal("skins/altfont/uiskin.json"));
 
-    private final Button addJoinButton = new TextButton("JOIN", skin);
+    private final Button addJoinButton = new TextButton("JOIN", whiteSkin);
 
-    private final TextField passwordTextField = new TextField("Password", skin);
-    private final TextField nameTextField = new TextField("Name", skin);
+    private final TextField passwordTextField = new TextField("Password", whiteSkin);
+    private final TextField nameTextField = new TextField("Name", whiteSkin);
 
     public final TextArea textArea = new TextArea("Welcome to PixelArt!\n"
             // Adding long text for soft line breaks
-            + "This game was inspired by r/Place. Credits to Landon Patmore, Ye Bhone Myat, Robert Kilmer, and Benjamin Caro ", skin) {
+            + "This game was inspired by r/Place. Credits to Landon Patmore, Ye Bhone Myat, Robert Kilmer, and Benjamin Caro ", altSkin) {
         public float getPrefHeight () {
             float prefHeight = getLines() * getStyle().font.getLineHeight();
 //                float prefHeight = (getLines() + 1) * getStyle().font.getLineHeight(); // Work around
@@ -87,7 +88,7 @@ public class GameStage extends Stage {
         container.row().height(textHeight);
         container.pad(10).defaults().expandX().fillX().space(4);
 
-        final OpenScrollPane scrollPane = new OpenScrollPane(null, skin);
+        final OpenScrollPane scrollPane = new OpenScrollPane(null, altSkin);
         scrollPane.setSize(textWidth, textHeight);
         scrollPane.setPosition(xPos, yPos);
 //        scrollPane.setColor(Color.BLUE);
@@ -100,7 +101,7 @@ public class GameStage extends Stage {
 
         scrollPane.setWidget(textArea);
 
-        Button addLineButton = new TextButton("Add new line", skin);
+        Button addLineButton = new TextButton("Add new line", whiteSkin);
         addLineButton.setPosition(525, 710);
         addLineButton.setSize(200, 30);
         addLineButton.addListener(new ChangeListener() {
