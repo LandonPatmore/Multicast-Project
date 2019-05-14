@@ -148,7 +148,6 @@ public class MulticastThread implements Runnable {
         s.parseSocketData(packet);
 
         final PlayPacket playPacket = getPlay(s.getPlayNumber());
-
         sendPacket(playPacket.createPacket(packet.getAddress(), packet.getPort(), secretKey));
     }
 
@@ -175,7 +174,6 @@ public class MulticastThread implements Runnable {
         System.out.println("Cannot decrypt packet from " + packet.getAddress());
 
         final ErrorPacket e = new ErrorPacket("Cannot decrypt packet", packet);
-
         sendPacket(e.createPacket(secretKey));
     }
 
@@ -202,19 +200,18 @@ public class MulticastThread implements Runnable {
     /**
      * Payload of <code>Packet</code> is trimmed from offset to length of data received
      * because otherwise it would mess up the padding and make
-     * {@link com.csc445.shared.utils.AES#decryptByteArray(byte[], String) throw an error.
+     * {@link com.csc445.shared.utils.AES#decryptByteArray(byte[], int, String)} throw an error.
      *
      * @param packet packet to be decrypted
      * @return decrypted payload of <code>packet</code>, or <code>null</code> if decryption fails
      */
     private byte[] decryptPacket(DatagramPacket packet) {
         try {
-            return AES.decryptByteArray(Arrays.copyOfRange(packet.getData(),
-                    packet.getOffset(), packet.getLength()), secretKey);
+            return AES.decryptByteArray(packet.getData(), packet.getLength(), secretKey);
         } catch (InvalidKeyException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override

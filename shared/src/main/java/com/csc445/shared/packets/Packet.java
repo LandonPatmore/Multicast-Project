@@ -11,24 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Packet {
-    protected enum Type {
-        JOIN((byte) 1),
-        PlAY((byte) 2),
-        START((byte) 4),
-        MESSAGE((byte) 5),
-        STATE_REQ((byte) 6),
-        ERROR((byte) 7);
-
-        private final byte value;
-
-        Type(byte value) {
-            this.value = value;
-        }
-
-        public byte getValue() {
-            return this.value;
-        }
-    }
 
     private List<Byte> data = new ArrayList<>(Constants.PACKET_SIZE);
     private final Type type;
@@ -36,11 +18,11 @@ public abstract class Packet {
     private InetAddress senderAddress;
     private int senderPort;
 
-    public Packet(Type type) {
+    Packet(Type type) {
         this.type = type;
     }
 
-    public abstract void parseSocketData(DatagramPacket packet); // always start at 1 because we aready determined what type of packet it was
+    public abstract void parseSocketData(DatagramPacket packet); // always start at 1 because we already determined what type of packet it was
 
     protected abstract void createPacketData();
 
@@ -51,13 +33,22 @@ public abstract class Packet {
     public DatagramPacket createPacket(InetAddress address, int port, String secretKey) {
         createPacketData();
 
-        final byte[] data = AES.encryptByteArray(arrayListToArrayHelper(), secretKey);
-//        final byte[] data = arrayListToArrayHelper();
 
-        return new DatagramPacket(data, data.length, address, port);
+        try {
+            final byte[] dataArray = arrayListToArrayHelper();
+            final byte[] encryptedDataArray = AES.encryptByteArray(dataArray, dataArray.length, secretKey);
+
+            if (encryptedDataArray != null) {
+                return new DatagramPacket(encryptedDataArray, encryptedDataArray.length, address, port);
+            }
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    byte[] arrayListToArrayHelper() {
+    private byte[] arrayListToArrayHelper() {
         final byte[] dataArray = new byte[data.size()];
 
         for (int i = 0; i < dataArray.length; i++) {
@@ -77,10 +68,6 @@ public abstract class Packet {
         }
     }
 
-    List<Byte> getData() {
-        return data;
-    }
-
     void addData(byte data) {
         this.data.add(data);
     }
@@ -89,19 +76,30 @@ public abstract class Packet {
         return type;
     }
 
-    InetAddress getSenderAddress() {
-        return senderAddress;
-    }
-
     void setSenderAddress(InetAddress senderAddress) {
         this.senderAddress = senderAddress;
     }
 
-    int getSenderPort() {
-        return senderPort;
-    }
-
     void setSenderPort(int senderPort) {
         this.senderPort = senderPort;
+    }
+
+    protected enum Type {
+        JOIN((byte) 1),
+        PlAY((byte) 2),
+        START((byte) 4),
+        MESSAGE((byte) 5),
+        STATE_REQ((byte) 6),
+        ERROR((byte) 7);
+
+        private final byte value;
+
+        Type(byte value) {
+            this.value = value;
+        }
+
+        public byte getValue() {
+            return this.value;
+        }
     }
 }
