@@ -11,17 +11,16 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 
-public class PalletColor extends Actor {
+public class ColorPalletColor extends Actor {
 
     private Colors color;
     private final Vector2 canvasPos;
     private final int size;
     private Texture t;
-    private Pixmap pixmap;
     private Color actualColor;
 
 
-    public PalletColor(Colors color, Vector2 canvasPos, int size) {
+    public ColorPalletColor(Colors color, Vector2 canvasPos, int size) {
         this.color = color;
         this.canvasPos = canvasPos;
         this.size = size;
@@ -87,7 +86,7 @@ public class PalletColor extends Actor {
         }
 
 
-        pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        final Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
         pixmap.setColor(actualColor);
         pixmap.fillRectangle(0, 0, size, size);
         t = new Texture(pixmap);

@@ -3,6 +3,7 @@ package com.csc445.frontend.Actors;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
+import com.badlogic.gdx.graphics.Color;
 import com.csc445.frontend.Utils.Helper;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,9 +12,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import org.w3c.dom.Text;
-
-import javax.swing.*;
+import com.csc445.frontend.Utils.State;
+import com.csc445.shared.game.Spot;
+import com.csc445.shared.packets.PlayPacket;
+import com.csc445.shared.utils.Constants;
 
 public class Pixel extends Actor {
 
@@ -26,6 +28,7 @@ public class Pixel extends Actor {
     private String id;
     private final Skin skin = new Skin(Gdx.files.internal("skins/whitefont/uiskin.json"));
 
+    private String userName;
 
     /**
      * @param gridPos   the pixel's actual grid position
@@ -36,8 +39,7 @@ public class Pixel extends Actor {
         this.gridPos = gridPos;
         this.canvasPos = canvasPos;
         this.size = size;
-        id = gridPos.x + " : " + gridPos.y;
-        createPixmap();
+        setColor(new Color(1, 1, 1, 1));
         setBounds(canvasPos.x, canvasPos.y, size, size);
         setListener();
     }
@@ -49,18 +51,15 @@ public class Pixel extends Actor {
         addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Helper.getSocket().emit("pixelChanged", Helper.getSelectedColor());
-                pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
-                pixmap.setColor(Helper.getSelectedColor());
-                pixmap.fillRectangle(0, 0, size, size);
-                t = new Texture(pixmap);
-                pixmap.dispose();
-                return true;
-            }
+                final Spot spot = new Spot((int) gridPos.x, (int) gridPos.y);
+                spot.setName(State.getName());
+                spot.setColor(Helper.getSelectedColorByte());
 
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println(id);
+                final PlayPacket playPacket = new PlayPacket(spot);
+                Helper.sendPacket(playPacket.createPacket(), State.getServerName(), Constants.SERVER_PORT);
+
+                setColor(Helper.getSelectedColor());
+                return true;
             }
 
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
@@ -79,17 +78,6 @@ public class Pixel extends Actor {
     }
 
     /**
-     * Creates a pixmap to be piped into a texture to create a filled rectangle
-     */
-    private void createPixmap() {
-        pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
-        setColor();
-        pixmap.fillRectangle(0, 0, size, size);
-        t = new Texture(pixmap);
-        pixmap.dispose();
-    }
-
-    /**
      * @param batch       batch
      * @param parentAlpha parentAlpha
      */
@@ -100,9 +88,22 @@ public class Pixel extends Actor {
     }
 
     /**
-     * Generates a random color for the pixel
+     * Generates a white pixel
      */
-    private void setColor() {
-        pixmap.setColor(1, 1, 1, 1);
+    @Override
+    public void setColor(Color color) {
+        pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fillRectangle(0, 0, size, size);
+        t = new Texture(pixmap);
+        pixmap.dispose();
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
-import com.csc445.frontend.Actors.PalletColor;
+import com.csc445.frontend.Actors.ColorPalletColor;
 import com.csc445.frontend.Actors.Pixel;
 import com.csc445.frontend.Utils.Colors;
 import com.badlogic.gdx.math.Vector2;
@@ -22,15 +22,7 @@ public class GameStage extends Stage {
     private Pixel[][] pixels = new Pixel[50][65];
 
     // Array of Pallet Colors
-    private PalletColor[] palletColors = new PalletColor[Colors.values().length];
-
-    // Pixel size, could be a local variable but like it out here @Landon
-    private final int P_SIZE = 10;
-
-    // Pallet Color size
-    private final int CP_SIZE = 50;
-
-    private final float off_H;
+    private ColorPalletColor[] colorPalletColors = new ColorPalletColor[Colors.values().length];
 
     private final int textHeight = 500;
 
@@ -54,7 +46,7 @@ public class GameStage extends Stage {
     public final TextArea textArea = new TextArea("Welcome to PixelArt!\n"
             // Adding long text for soft line breaks
             + "This game was inspired by r/Place. Credits to Landon Patmore, Ye Bhone Myat, Robert Kilmer, and Benjamin Caro ", altSkin) {
-        public float getPrefHeight () {
+        public float getPrefHeight() {
             float prefHeight = getLines() * getStyle().font.getLineHeight();
 //                float prefHeight = (getLines() + 1) * getStyle().font.getLineHeight(); // Work around
             TextFieldStyle style = getStyle();
@@ -73,16 +65,15 @@ public class GameStage extends Stage {
     public GameStage(Viewport viewport) {
         super(viewport);
 
-        off_H = getHeight() / 3;
+        Gdx.gl.glClearColor(192 / 255f, 192 / 255f, 192 / 255f, 1);
 
-        Gdx.gl.glClearColor(192/255f, 192/255f, 192/255f, 1);
         generatePixels();
         addPalletColors();
         addText();
         addJoin();
     }
 
-    private void addText(){
+    private void addText() {
         int xPos = 513;
         int yPos = 200;
         Gdx.input.setInputProcessor(this);
@@ -125,11 +116,12 @@ public class GameStage extends Stage {
         container.debugAll();
     }
 
-    private void addJoin(){
+    private void addJoin() {
         int buttonPassWidth = 200;
         int buttonPassHeight = 30;
         int positionX = 525;
         int positionY = 100;
+
         nameTextField.addListener(new FocusListener() {
             @Override
             public boolean handle(Event event) {
@@ -154,7 +146,7 @@ public class GameStage extends Stage {
         });
         nameTextField.setPosition(positionX, positionY+buttonPassHeight+5);
         nameTextField.setSize(buttonPassWidth, buttonPassHeight);
-        passwordTextField.setPosition(positionX,positionY);
+        passwordTextField.setPosition(positionX, positionY);
         passwordTextField.setSize(buttonPassWidth, buttonPassHeight);
         addJoinButton.setSize(buttonPassWidth, buttonPassHeight);
         addJoinButton.setPosition(positionX, positionY-(buttonPassHeight+5));
@@ -204,19 +196,22 @@ public class GameStage extends Stage {
     private void generatePixels() {
         for (int i = 0; i < pixels.length; i++) {
             for (int j = 0; j < pixels[i].length; j++) {
-                pixels[i][j] = new Pixel(new Vector2(i, j), new Vector2(i * P_SIZE, 100 + j * P_SIZE), P_SIZE);
+                // Pixel size, could be a local variable but like it out here @Landon
+                int p_SIZE = 10;
+                pixels[i][j] = new Pixel(new Vector2(i, j), new Vector2(i * p_SIZE, 100 + j * p_SIZE), p_SIZE);
                 addActor(pixels[i][j]);
             }
         }
     }
 
     private void addPalletColors() {
-        for (int i = 0; i < palletColors.length; i++) {
-            palletColors[i] = new PalletColor(Colors.values()[i], new Vector2(i * CP_SIZE, 25), CP_SIZE);
-            addActor(palletColors[i]);
+        for (int i = 0; i < colorPalletColors.length; i++) {
+            // Pallet Color size
+            int CP_SIZE = 50;
+            colorPalletColors[i] = new ColorPalletColor(Colors.values()[i], new Vector2(i * CP_SIZE, 25), CP_SIZE);
+            addActor(colorPalletColors[i]);
         }
     }
-
 
     public class OpenScrollPane extends ScrollPane {
 
@@ -238,5 +233,9 @@ public class GameStage extends Stage {
             }
         }
 
+
+        public void updatePixel(int x, int y) {
+
+        }
     }
 }
