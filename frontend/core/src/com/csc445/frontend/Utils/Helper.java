@@ -37,6 +37,19 @@ public class Helper {
         }).start();
     }
 
+    public static DatagramPacket receivePacket() {
+        try {
+            final byte[] buf = new byte[512];
+            final DatagramPacket packet = new DatagramPacket(buf, buf.length);
+            socket.receive(packet); // we actually receive the data here
+            return packet;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public static void setSelectedColor(Color color) {
         Helper.selectedColor = color;
         if (color.equals(Color.RED)) {

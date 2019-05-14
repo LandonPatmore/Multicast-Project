@@ -15,6 +15,13 @@ import com.csc445.frontend.Utils.Colors;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.csc445.frontend.Utils.Helper;
+import com.csc445.frontend.Utils.State;
+import com.csc445.shared.packets.JoinPacket;
+import com.csc445.shared.utils.Constants;
+
+import java.net.DatagramPacket;
+import java.net.UnknownHostException;
 
 public class GameStage extends Stage {
 
@@ -43,7 +50,7 @@ public class GameStage extends Stage {
     private final TextField nameTextField = new TextField("Name", whiteSkin);
     private final TextField serverTextField = new TextField("Server Address", whiteSkin);
 
-    public final TextArea textArea = new TextArea("Welcome to PixelArt!\n"
+    private final TextArea textArea = new TextArea("Welcome to PixelArt!\n"
             // Adding long text for soft line breaks
             + "This game was inspired by r/Place. Credits to Landon Patmore, Ye Bhone Myat, Robert Kilmer, and Benjamin Caro ", altSkin) {
         public float getPrefHeight() {
@@ -80,6 +87,8 @@ public class GameStage extends Stage {
         Table container = new Table();
         this.addActor(container);
         container.setColor(Color.BLUE);
+        int textHeight = 500;
+        int textWidth = 225;
         container.setSize(textWidth, textHeight);
         container.setPosition(xPos, yPos);
         container.row().width(textWidth);
@@ -182,12 +191,24 @@ public class GameStage extends Stage {
                 passwordTextField.invalidate();
                 serverTextField.invalidate();
                 addJoinButton.invalidate();
+
+                try {
+                    State.setServerName("127.0.0.1");
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
+                sendJoinPacket();
             }
         });
         this.addActor(this.serverTextField);
         this.addActor(this.nameTextField);
         this.addActor(this.passwordTextField);
         this.addActor(this.addJoinButton);
+    }
+
+    private void sendJoinPacket() {
+        final JoinPacket j = new JoinPacket(State.getName());
+        Helper.sendPacket(j.createPacket(), State.getServerName(), Constants.SERVER_PORT);
     }
 
     /**
@@ -237,5 +258,6 @@ public class GameStage extends Stage {
         public void updatePixel(int x, int y) {
 
         }
+
     }
 }
