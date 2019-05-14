@@ -30,6 +30,9 @@ public class Game {
         }).start();
     }
 
+    /**
+     * Function to initialize the spaces with new {@link com.csc445.shared.game.Spot} objects.
+     */
     private void initializeSpaces() {
         for (int i = 0; i < spots.length; i++) {
             for (int j = 0; j < spots[0].length; j++) {
@@ -38,6 +41,13 @@ public class Game {
         }
     }
 
+    /**
+     * Function to check whether a particular player is in the game.  Checks the name, as well as the IP of the player
+     * to make sure there are no duplicate names, or multiple games being played on the same client.
+     *
+     * @param newPlayer Player to check for their existence
+     * @return true if they exist, false if they do not exist
+     */
     private synchronized boolean playerIsInGame(Player newPlayer) {
         for (Player p : playersList) {
             if (p.getAddress().equals(newPlayer.getAddress())) {
@@ -50,6 +60,13 @@ public class Game {
         return false;
     }
 
+    /**
+     * Function to add a player to the game.  Checks to see if the player is already in the game.  If they are not,
+     * they are added to the player list, otherwise they are not added.
+     *
+     * @param newPlayer Player to add to the game
+     * @return true if they are added, false if they are not added
+     */
     public synchronized boolean addPlayerToGame(Player newPlayer) {
         if (!playerIsInGame(newPlayer)) {
             playersList.add(newPlayer);
@@ -61,6 +78,12 @@ public class Game {
         return false;
     }
 
+    /**
+     * Function to update the heartbeat for a particular player.  Finds the player and sets their heartbeat to true.
+     *
+     * @param address Address of the player that has sent a heartbeat
+     * @return true if they exist, false if they do not exist
+     */
     public synchronized boolean updatePlayerHeartbeat(InetAddress address) {
         for (Player p : playersList) {
             if (p.getAddress().equals(address)) {
@@ -74,6 +97,9 @@ public class Game {
         return false;
     }
 
+    /**
+     * Function to sweep stale players from the game.
+     */
     private synchronized void sweepPlayers() {
         Iterator<Player> playerIterator = playersList.iterator();
         while (playerIterator.hasNext()) {
@@ -87,6 +113,11 @@ public class Game {
         }
     }
 
+    /**
+     * Function to update a spot in the server game state with the new data that has come in from a particular player.
+     *
+     * @param spotToUpdate Spot to update with new data
+     */
     public synchronized void updateSpot(Spot spotToUpdate) {
         final Spot spot = spots[spotToUpdate.getX()][spotToUpdate.getY()];
 

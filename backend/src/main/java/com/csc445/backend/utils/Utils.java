@@ -8,7 +8,8 @@ public class Utils {
 
     /**
      * THIS IS NOT A SECURE WAY TO GENERATE A PASSWORD, THIS IS JUST USED FOR DEMONSTRATION PURPOSES
-     * @return
+     *
+     * @return Random string of numbers
      */
     public static String passwordGenerator() {
         final Random random = new Random();
