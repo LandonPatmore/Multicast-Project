@@ -34,6 +34,9 @@ public class MulticastThread implements Runnable {
         this.plays = new HashMap<>();
     }
 
+    /**
+     * Function that runs a separate thread to monitor if players are still connected or not.
+     */
     private void startGame() {
         new Thread(() -> {
             final List<String> removedPlayers = game.sweepPlayers();
