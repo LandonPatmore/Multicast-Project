@@ -15,9 +15,6 @@ public abstract class Packet {
     private List<Byte> data = new ArrayList<>(Constants.PACKET_SIZE);
     private final Type type;
 
-    private InetAddress senderAddress;
-    private int senderPort;
-
     Packet(Type type) {
         this.type = type;
     }
@@ -26,26 +23,9 @@ public abstract class Packet {
 
     protected abstract void createPacketData();
 
-    public DatagramPacket createPacket(String secretKey) {
-        return createPacket(senderAddress, senderPort, secretKey);
-    }
-
-    public DatagramPacket createPacket(InetAddress address, int port, String secretKey) {
+    public byte[] createPacket() {
         createPacketData();
-
-
-        try {
-            final byte[] dataArray = arrayListToArrayHelper();
-            final byte[] encryptedDataArray = AES.encryptByteArray(dataArray, dataArray.length, secretKey);
-
-            if (encryptedDataArray != null) {
-                return new DatagramPacket(encryptedDataArray, encryptedDataArray.length, address, port);
-            }
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return arrayListToArrayHelper();
     }
 
     private byte[] arrayListToArrayHelper() {
@@ -74,14 +54,6 @@ public abstract class Packet {
 
     Type getType() {
         return type;
-    }
-
-    void setSenderAddress(InetAddress senderAddress) {
-        this.senderAddress = senderAddress;
-    }
-
-    void setSenderPort(int senderPort) {
-        this.senderPort = senderPort;
     }
 
     protected enum Type {

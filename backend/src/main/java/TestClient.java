@@ -2,11 +2,9 @@ import com.csc445.shared.utils.AES;
 import com.csc445.shared.utils.Constants;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.*;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
-import java.util.Base64;
 
 public class TestClient {
 
@@ -15,7 +13,7 @@ public class TestClient {
         final MulticastSocket socket = new MulticastSocket(Constants.GROUP_PORT);
         final InetAddress group = InetAddress.getByName(Constants.GROUP_ADDRESS);
         socket.joinGroup(group);
-        final InetAddress server = InetAddress.getByName("192.168.1.94");
+        final InetAddress server = InetAddress.getByName("127.0.0.1");
 
         System.out.println("Test client started...");
         System.out.println(group);
@@ -46,25 +44,25 @@ public class TestClient {
             buf[i + 1] = name.getBytes()[i];
         }
 
-		try {
-			buf = AES.encryptByteArray(buf, secretKey);
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		}
+        try {
+            buf = AES.encryptByteArray(buf, buf.length, secretKey);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
 
-		socket.send(new DatagramPacket(buf, buf.length, server, Constants.SERVER_PORT));
+        socket.send(new DatagramPacket(buf, buf.length, server, Constants.SERVER_PORT));
         while (true) {
             final byte[] rBuf = new byte[Constants.PACKET_SIZE];
             final DatagramPacket receivedPacket = new DatagramPacket(rBuf, rBuf.length);
             socket.receive(receivedPacket);
             byte[] data = Arrays.copyOfRange(receivedPacket.getData(), 0, receivedPacket.getLength());
-			try {
-				data = AES.decryptByteArray(data, secretKey);
-				System.out.println(new String(data, 1, data.length - 1));
-			} catch (InvalidKeyException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
+            try {
+                data = AES.decryptByteArray(data, data.length, secretKey);
+                System.out.println(new String(data, 1, data.length - 1));
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
     }
 }

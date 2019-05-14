@@ -1,7 +1,6 @@
 package com.csc445.backend.networking;
 
 import com.csc445.backend.game.Game;
-import com.csc445.backend.utils.Utils;
 import com.csc445.shared.game.Player;
 import com.csc445.shared.packets.*;
 import com.csc445.shared.utils.AES;
@@ -12,9 +11,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.security.InvalidKeyException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MulticastThread implements Runnable {
 
@@ -37,16 +34,31 @@ public class MulticastThread implements Runnable {
         this.plays = new HashMap<>();
     }
 
+    private void startGame() {
+        new Thread(() -> {
+            final List<String> removedPlayers = game.sweepPlayers();
+
+            for (String p : removedPlayers) {
+                sendMessagePacket(p + " disconnected from the game.");
+            }
+        }).start();
+    }
+
     /**
      * Function to send a packet over the socket.
      *
-     * @param packet packet to send to the client/s
+     * @param data    data to send
+     * @param address address to send to
+     * @param port    port to send to
      */
-    private void sendPacket(DatagramPacket packet) {
+    private void sendPacket(byte[] data, InetAddress address, int port) {
         new Thread(() -> {
             try {
-                socket.send(packet);
-            } catch (IOException e) {
+                final byte[] encryptedDataArray = AES.encryptByteArray(data, data.length, secretKey);
+                if (encryptedDataArray != null) {
+                    socket.send(new DatagramPacket(encryptedDataArray, encryptedDataArray.length, address, port));
+                }
+            } catch (IOException | InvalidKeyException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -87,11 +99,9 @@ public class MulticastThread implements Runnable {
         final boolean didAddToGame = game.addPlayerToGame(newPlayer);
 
         if (!didAddToGame) {
-            final ErrorPacket e = new ErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", packet);
-            sendPacket(e.createPacket(secretKey));
+            sendErrorPacket(newPlayer.getName() + " | " + newPlayer.getAddress() + " already exists in the game.", packet.getAddress(), packet.getPort());
         } else {
-            final MessagePacket m = new MessagePacket(newPlayer.getName() + " has joined the game.");
-            sendPacket(m.createPacket(group, 4446, secretKey));
+            sendMessagePacket(newPlayer.getName() + " has joined the game.");
         }
     }
 
@@ -111,7 +121,7 @@ public class MulticastThread implements Runnable {
         game.updateSpot(p.getSpot());
 
 
-        sendPacket(p.createPacket(group, 4446, secretKey));
+        sendPacket(p.createPacket(), group, Constants.GROUP_PORT);
     }
 
     /**
@@ -129,8 +139,7 @@ public class MulticastThread implements Runnable {
         final boolean heartbeatUpdated = game.updatePlayerHeartbeat(packet.getAddress());
 
         if (!heartbeatUpdated) {
-            final ErrorPacket e = new ErrorPacket("User is not properly connected.  Please exit and try again to authenticate.", packet);
-            sendPacket(e.createPacket(secretKey));
+            sendErrorPacket("User is not properly connected.  Please exit and try again to authenticate.", packet.getAddress(), packet.getPort());
         }
     }
 
@@ -147,8 +156,8 @@ public class MulticastThread implements Runnable {
         final StateRequestPacket s = new StateRequestPacket();
         s.parseSocketData(packet);
 
-        final PlayPacket playPacket = getPlay(s.getPlayNumber());
-        sendPacket(playPacket.createPacket(packet.getAddress(), packet.getPort(), secretKey));
+        final PlayPacket p = getPlay(s.getPlayNumber());
+        sendPacket(p.createPacket(), packet.getAddress(), packet.getPort());
     }
 
     /**
@@ -160,9 +169,7 @@ public class MulticastThread implements Runnable {
      */
     private void processInvalidPacket(DatagramPacket packet) {
         System.out.println("Received unknown code: " + packet.getData()[0]);
-
-        final ErrorPacket e = new ErrorPacket("Unknown packet code: " + packet.getData()[0], packet);
-        sendPacket(e.createPacket(secretKey));
+        sendErrorPacket("Unknown packet code: " + packet.getData()[0], packet.getAddress(), packet.getPort());
     }
 
     /**
@@ -172,9 +179,17 @@ public class MulticastThread implements Runnable {
      */
     private void processWrongPassword(DatagramPacket packet) {
         System.out.println("Cannot decrypt packet from " + packet.getAddress());
+        sendErrorPacket("Cannot decrypt packet", packet.getAddress(), packet.getPort());
+    }
 
-        final ErrorPacket e = new ErrorPacket("Cannot decrypt packet", packet);
-        sendPacket(e.createPacket(secretKey));
+    private void sendMessagePacket(String message) {
+        final MessagePacket messagePacket = new MessagePacket(message);
+        sendPacket(messagePacket.createPacket(), group, Constants.GROUP_PORT);
+    }
+
+    private void sendErrorPacket(String error, InetAddress address, int port) {
+        final ErrorPacket errorPacket = new ErrorPacket(error);
+        sendPacket(errorPacket.createPacket(), address, port);
     }
 
     /**
@@ -220,6 +235,8 @@ public class MulticastThread implements Runnable {
         System.out.println("Server started...");
         System.out.println("Mutlicast group: " + group);
         System.out.println("Password: " + secretKey);
+
+        startGame();
 
         while (true) {
             final DatagramPacket receivedPacket = receivePacket(); // we actually receive the data here

@@ -15,6 +15,8 @@ public class Game {
     private final Spot[][] spots = new Spot[WIDTH][HEIGHT];
     private final List<Player> playersList = new ArrayList<>();
 
+    private boolean hasGameStarted;
+
     public Game() {
         initializeSpaces();
 
@@ -100,7 +102,9 @@ public class Game {
     /**
      * Function to sweep stale players from the game.
      */
-    private synchronized void sweepPlayers() {
+    public synchronized List<String> sweepPlayers() {
+        final List<String> removedPlayers = new ArrayList<>();
+
         Iterator<Player> playerIterator = playersList.iterator();
         while (playerIterator.hasNext()) {
             final Player player = playerIterator.next();
@@ -108,9 +112,12 @@ public class Game {
                 player.setHasHeartbeat(false);
             } else {
                 System.out.println(player.getName() + " has disconnected.");
+                removedPlayers.add(player.getName());
                 playerIterator.remove();
             }
         }
+
+        return removedPlayers;
     }
 
     /**
@@ -125,5 +132,13 @@ public class Game {
         spot.setColor(spotToUpdate.getColor());
 
         System.out.println("Spot (" + spot.getX() + "," + spot.getY() + ") updated - Name: " + spot.getName() + " | Color: " + spot.getColor());
+    }
+
+    public boolean isHasGameStarted() {
+        return hasGameStarted;
+    }
+
+    public void setHasGameStarted(boolean hasGameStarted) {
+        this.hasGameStarted = hasGameStarted;
     }
 }
