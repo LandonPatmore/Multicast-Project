@@ -1,7 +1,12 @@
 package com.csc445.frontend.Utils;
 
 import com.badlogic.gdx.graphics.Color;
+import com.csc445.frontend.Stage.GameStage;
+import com.csc445.shared.game.Spot;
+import com.csc445.shared.packets.ErrorPacket;
+import com.csc445.shared.packets.PlayPacket;
 import com.csc445.shared.utils.AES;
+import com.csc445.shared.utils.Constants;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -40,17 +45,65 @@ public class Helper {
         }).start();
     }
 
-    public static DatagramPacket receivePacket() {
-        try {
-            final byte[] buf = new byte[512];
-            final DatagramPacket packet = new DatagramPacket(buf, buf.length);
-            socket.receive(packet); // we actually receive the data here
-            return packet;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void receivePackets(GameStage stage) {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    final byte[] buf = new byte[512];
+                    final DatagramPacket receivedPacket = new DatagramPacket(buf, buf.length);
+                    socket.receive(receivedPacket); // we actually receive the data here
 
-        return null;
+                    final byte[] decryptedData = decryptPacket(receivedPacket);
+
+                    if (decryptedData == null) {
+                        processWrongPassword();
+                    } else {
+                        receivedPacket.setData(decryptedData);
+                        switch (receivedPacket.getData()[0]) {
+                            case 2: // Play packet
+                                processPlayPacket(receivedPacket, stage);
+                                break;
+                            case 7: // Error packet
+                                processErrorPacket(receivedPacket);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private static byte[] decryptPacket(DatagramPacket packet) {
+        try {
+            return AES.decryptByteArray(packet.getData(), packet.getLength(), State.getSecretKey());
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static void processWrongPassword() {
+        System.out.println("Cannot decrypt packet because the password is incorrect.");
+    }
+
+    private static void processPlayPacket(DatagramPacket packet, GameStage stage) {
+        System.out.println("Play packet");
+
+        final PlayPacket p = new PlayPacket();
+        p.parseSocketData(packet);
+        final Spot spot = p.getSpot();
+        stage.updatePixel(spot.getX(), spot.getY(), spot.getColor(), spot.getName());
+    }
+
+    private static void processErrorPacket(DatagramPacket packet) {
+        final ErrorPacket e = new ErrorPacket();
+        e.parseSocketData(packet);
+        System.out.println(e.getErrorMessage());
     }
 
     public static Color convertByteToColor(byte color) {

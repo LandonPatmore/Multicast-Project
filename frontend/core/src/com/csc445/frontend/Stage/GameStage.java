@@ -76,6 +76,8 @@ public class GameStage extends Stage {
         addPalletColors();
         addText();
         addJoin();
+
+        Helper.receivePackets(this);
     }
 
     private void addText() {
@@ -232,6 +234,12 @@ public class GameStage extends Stage {
         }
     }
 
+    public void updatePixel(int x, int y, byte color, String username) {
+        final Pixel p = pixels[x][y];
+        p.setColor(Helper.convertByteToColor(color));
+        p.setUserName(username);
+    }
+
     public class OpenScrollPane extends ScrollPane {
 
         private boolean scrollToBottom;
@@ -251,13 +259,5 @@ public class GameStage extends Stage {
                 setScrollY(getMaxY());
             }
         }
-
-
-        public void updatePixel(int x, int y, byte color, String username) {
-            final Pixel p = pixels[x][y];
-            p.setColor(Helper.convertByteToColor(color));
-            p.setUserName(username);
-        }
-
     }
 }
