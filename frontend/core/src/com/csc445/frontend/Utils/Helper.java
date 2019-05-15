@@ -1,9 +1,11 @@
 package com.csc445.frontend.Utils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.csc445.frontend.Stage.GameStage;
 import com.csc445.shared.game.Spot;
 import com.csc445.shared.packets.ErrorPacket;
+import com.csc445.shared.packets.MessagePacket;
 import com.csc445.shared.packets.PlayPacket;
 import com.csc445.shared.utils.AES;
 import com.csc445.shared.utils.Constants;
@@ -25,7 +27,8 @@ public class Helper {
 
     static {
         try {
-            socket = new MulticastSocket(4446);
+            socket = new MulticastSocket(Constants.GROUP_PORT);
+            socket.joinGroup(InetAddress.getByName(Constants.GROUP_ADDRESS));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -63,6 +66,8 @@ public class Helper {
                             case 2: // Play packet
                                 processPlayPacket(receivedPacket, stage);
                                 break;
+                            case 5: // Message packet
+                                processMessagePacket(receivedPacket, stage);
                             case 7: // Error packet
                                 processErrorPacket(receivedPacket);
                                 break;
@@ -97,13 +102,26 @@ public class Helper {
         final PlayPacket p = new PlayPacket();
         p.parseSocketData(packet);
         final Spot spot = p.getSpot();
-        stage.updatePixel(spot.getX(), spot.getY(), spot.getColor(), spot.getName());
+        Gdx.app.postRunnable(() -> {
+            stage.updatePixel(spot.getX(), spot.getY(), spot.getColor(), spot.getName());
+        });
+        updateTextArea(stage, spot.getName() + " played " + Helper.convertByteToColor(spot.getColor()) + " at X: " + spot.getX() + ", Y: " + spot.getY());
+    }
+
+    private static void processMessagePacket(DatagramPacket packet, GameStage stage) {
+        final MessagePacket m = new MessagePacket();
+        m.parseSocketData(packet);
+        updateTextArea(stage, m.getMessage());
     }
 
     private static void processErrorPacket(DatagramPacket packet) {
         final ErrorPacket e = new ErrorPacket();
         e.parseSocketData(packet);
         System.out.println(e.getErrorMessage());
+    }
+
+    private static void updateTextArea(GameStage stage, String message) {
+        stage.getTextArea().appendText("\n" + message);
     }
 
     public static Color convertByteToColor(byte color) {

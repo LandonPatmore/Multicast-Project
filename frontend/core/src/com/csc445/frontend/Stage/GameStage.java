@@ -240,6 +240,10 @@ public class GameStage extends Stage {
         p.setUserName(username);
     }
 
+    public TextArea getTextArea() {
+        return textArea;
+    }
+
     public class OpenScrollPane extends ScrollPane {
 
         private boolean scrollToBottom;
