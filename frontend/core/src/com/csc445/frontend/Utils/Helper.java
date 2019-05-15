@@ -10,6 +10,9 @@ import java.net.MulticastSocket;
 import java.security.InvalidKeyException;
 
 public class Helper {
+
+    private static final Color[] COLORS = {Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN, Color.BLUE, Color.PURPLE, Color.WHITE, Color.BLACK, Color.PINK, Color.TEAL};
+
     private static Color selectedColor = Color.BLACK;
     private static byte selectedColorByte = 7; // black
 
@@ -50,30 +53,61 @@ public class Helper {
         return null;
     }
 
-    public static void setSelectedColor(Color color) {
-        Helper.selectedColor = color;
-        if (color.equals(Color.RED)) {
-            Helper.selectedColorByte = 0;
-        } else if (color.equals(Color.ORANGE)) {
-            Helper.selectedColorByte = 1;
-        } else if (color.equals(Color.YELLOW)) {
-            Helper.selectedColorByte = 2;
-        } else if (color.equals(Color.GREEN)) {
-            Helper.selectedColorByte = 3;
-        } else if (color.equals(Color.BLUE)) {
-            Helper.selectedColorByte = 4;
-        } else if (color.equals(Color.PURPLE)) {
-            Helper.selectedColorByte = 5;
-        } else if (color.equals(Color.WHITE)) {
-            Helper.selectedColorByte = 6;
-        } else if (color.equals(Color.BLACK)) {
-            Helper.selectedColorByte = 7;
-        } else if (color.equals(Color.PINK)) {
-            Helper.selectedColorByte = 8;
-        } else if (color.equals(Color.TEAL)) {
-            Helper.selectedColorByte = 9;
+    public static Color convertByteToColor(byte color) {
+        if (color == 0) {
+            return Color.RED;
+        } else if (color == 1) {
+            return Color.ORANGE;
+        } else if (color == 2) {
+            return Color.YELLOW;
+        } else if (color == 3) {
+            return Color.GREEN;
+        } else if (color == 4) {
+            return Color.BLUE;
+        } else if (color == 5) {
+            return Color.PURPLE;
+        } else if (color == 6) {
+            return Color.WHITE;
+        } else if (color == 7) {
+            return Color.BLACK;
+        } else if (color == 8) {
+            return Color.PINK;
+        } else if (color == 9) {
+            return Color.TEAL;
         }
 
+        return null;
+    }
+
+    private static byte convertColorToByte(Color color) {
+        if (color.equals(Color.RED)) {
+            return 0;
+        } else if (color.equals(Color.ORANGE)) {
+            return 1;
+        } else if (color.equals(Color.YELLOW)) {
+            return 2;
+        } else if (color.equals(Color.GREEN)) {
+            return 3;
+        } else if (color.equals(Color.BLUE)) {
+            return 4;
+        } else if (color.equals(Color.PURPLE)) {
+            return 5;
+        } else if (color.equals(Color.WHITE)) {
+            return 6;
+        } else if (color.equals(Color.BLACK)) {
+            return 7;
+        } else if (color.equals(Color.PINK)) {
+            return 8;
+        } else if (color.equals(Color.TEAL)) {
+            return 9;
+        }
+
+        return 7;
+    }
+
+    public static void setSelectedColor(Color color) {
+        Helper.selectedColor = color;
+        Helper.selectedColorByte = convertColorToByte(color);
     }
 
     public static Color getSelectedColor() {
@@ -82,5 +116,9 @@ public class Helper {
 
     public static byte getSelectedColorByte() {
         return Helper.selectedColorByte;
+    }
+
+    public static Color[] getColors() {
+        return COLORS;
     }
 }

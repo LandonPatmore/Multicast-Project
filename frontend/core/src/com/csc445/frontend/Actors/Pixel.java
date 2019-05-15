@@ -19,14 +19,15 @@ import com.csc445.shared.utils.Constants;
 
 public class Pixel extends Actor {
 
-    private Pixmap pixmap;
-    private final Vector2 gridPos;
     private final Vector2 canvasPos;
     private final int size;
     private TextTooltip toolTip;
     private Texture t;
     private String id;
     private final Skin skin = new Skin(Gdx.files.internal("skins/whitefont/uiskin.json"));
+
+    private int x;
+    private int y;
 
     private String userName;
 
@@ -36,7 +37,8 @@ public class Pixel extends Actor {
      * @param size      the size of the pixel
      */
     public Pixel(Vector2 gridPos, Vector2 canvasPos, int size) {
-        this.gridPos = gridPos;
+        this.x = (int) gridPos.x;
+        this.y = (int) gridPos.y;
         this.canvasPos = canvasPos;
         this.size = size;
         setColor(new Color(1, 1, 1, 1));
@@ -50,15 +52,16 @@ public class Pixel extends Actor {
     private void setListener() {
         addListener(new InputListener() {
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                final Spot spot = new Spot((int) gridPos.x, (int) gridPos.y);
-                spot.setName(State.getName());
+            public boolean touchDown(InputEvent event, float dontAccessX,float dontAccessY, int pointer, int button) {
+                final Spot spot = new Spot(x, y);
+                spot.setName(State.getUserName());
                 spot.setColor(Helper.getSelectedColorByte());
 
                 final PlayPacket playPacket = new PlayPacket(spot);
                 Helper.sendPacket(playPacket.createPacket(), State.getServerName(), Constants.SERVER_PORT);
 
                 setColor(Helper.getSelectedColor());
+                setUserName(State.getUserName());
                 return true;
             }
 
@@ -92,7 +95,7 @@ public class Pixel extends Actor {
      */
     @Override
     public void setColor(Color color) {
-        pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        final Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
         pixmap.fillRectangle(0, 0, size, size);
         t = new Texture(pixmap);

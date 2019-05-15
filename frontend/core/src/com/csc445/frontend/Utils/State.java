@@ -5,16 +5,16 @@ import java.net.UnknownHostException;
 
 public class State {
 
-    private static String name;
+    private static String userName;
     private static InetAddress serverName;
     private static String secretKey;
 
-    public static String getName() {
-        return name;
+    public static String getUserName() {
+        return userName;
     }
 
-    public static void setName(String name) {
-        State.name = name;
+    public static void setUserName(String userName) {
+        State.userName = userName;
     }
 
     public static InetAddress getServerName() {

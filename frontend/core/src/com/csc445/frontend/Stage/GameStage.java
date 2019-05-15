@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.csc445.frontend.Actors.ColorPalletColor;
 import com.csc445.frontend.Actors.Pixel;
-import com.csc445.frontend.Utils.Colors;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -20,7 +19,6 @@ import com.csc445.frontend.Utils.State;
 import com.csc445.shared.packets.JoinPacket;
 import com.csc445.shared.utils.Constants;
 
-import java.net.DatagramPacket;
 import java.net.UnknownHostException;
 
 public class GameStage extends Stage {
@@ -29,7 +27,7 @@ public class GameStage extends Stage {
     private Pixel[][] pixels = new Pixel[50][65];
 
     // Array of Pallet Colors
-    private ColorPalletColor[] colorPalletColors = new ColorPalletColor[Colors.values().length];
+    private ColorPalletColor[] colorPalletColors = new ColorPalletColor[Helper.getColors().length];
 
     private final int textHeight = 500;
 
@@ -207,7 +205,7 @@ public class GameStage extends Stage {
     }
 
     private void sendJoinPacket() {
-        final JoinPacket j = new JoinPacket(State.getName());
+        final JoinPacket j = new JoinPacket(State.getUserName());
         Helper.sendPacket(j.createPacket(), State.getServerName(), Constants.SERVER_PORT);
     }
 
@@ -229,7 +227,7 @@ public class GameStage extends Stage {
         for (int i = 0; i < colorPalletColors.length; i++) {
             // Pallet Color size
             int CP_SIZE = 50;
-            colorPalletColors[i] = new ColorPalletColor(Colors.values()[i], new Vector2(i * CP_SIZE, 25), CP_SIZE);
+            colorPalletColors[i] = new ColorPalletColor(Helper.getColors()[i], new Vector2(i * CP_SIZE, 25), CP_SIZE);
             addActor(colorPalletColors[i]);
         }
     }
@@ -255,8 +253,10 @@ public class GameStage extends Stage {
         }
 
 
-        public void updatePixel(int x, int y) {
-
+        public void updatePixel(int x, int y, byte color, String username) {
+            final Pixel p = pixels[x][y];
+            p.setColor(Helper.convertByteToColor(color));
+            p.setUserName(username);
         }
 
     }
