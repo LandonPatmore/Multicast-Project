@@ -22,9 +22,8 @@ public class Pixel extends Actor {
     private final Vector2 canvasPos;
     private final int size;
     private TextTooltip toolTip;
+    private Skin toolTipSkin;
     private Texture t;
-    private String id;
-    private final Skin skin = new Skin(Gdx.files.internal("skins/whitefont/uiskin.json"));
 
     private int x;
     private int y;
@@ -36,11 +35,12 @@ public class Pixel extends Actor {
      * @param canvasPos the pixel's position on the canvas
      * @param size      the size of the pixel
      */
-    public Pixel(Vector2 gridPos, Vector2 canvasPos, int size) {
+    public Pixel(Vector2 gridPos, Vector2 canvasPos, int size, Skin toolTipSkin) {
         this.x = (int) gridPos.x;
         this.y = (int) gridPos.y;
         this.canvasPos = canvasPos;
         this.size = size;
+        this.toolTipSkin = toolTipSkin;
         setColor(new Color(1, 1, 1, 1));
         setBounds(canvasPos.x, canvasPos.y, size, size);
         setListener();
@@ -52,7 +52,7 @@ public class Pixel extends Actor {
     private void setListener() {
         addListener(new InputListener() {
             @Override
-            public boolean touchDown(InputEvent event, float dontAccessX,float dontAccessY, int pointer, int button) {
+            public boolean touchDown(InputEvent event, float dontAccessX, float dontAccessY, int pointer, int button) {
                 final Spot spot = new Spot(x, y);
                 spot.setName(State.getUserName());
                 spot.setColor(Helper.getSelectedColorByte());
@@ -65,9 +65,8 @@ public class Pixel extends Actor {
                 return true;
             }
 
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                System.out.println(id);
-                toolTip = new TextTooltip(id, skin);
+            public void enter(InputEvent event, float dontAccessX, float dontAccessXY, int pointer, Actor fromActor) {
+                toolTip = new TextTooltip(x + ", " + y, toolTipSkin);
                 event.getTarget().addListener(toolTip);
                 toolTip.setInstant(true);
 

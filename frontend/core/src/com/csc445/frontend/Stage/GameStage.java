@@ -219,7 +219,7 @@ public class GameStage extends Stage {
             for (int j = 0; j < pixels[i].length; j++) {
                 // Pixel size, could be a local variable but like it out here @Landon
                 int p_SIZE = 10;
-                pixels[i][j] = new Pixel(new Vector2(i, j), new Vector2(i * p_SIZE, 100 + j * p_SIZE), p_SIZE);
+                pixels[i][j] = new Pixel(new Vector2(i, j), new Vector2(i * p_SIZE, 100 + j * p_SIZE), p_SIZE, whiteSkin);
                 addActor(pixels[i][j]);
             }
         }
