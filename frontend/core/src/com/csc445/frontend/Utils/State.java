@@ -21,8 +21,12 @@ public class State {
         return serverName;
     }
 
-    public static void setServerName(String serverName) throws UnknownHostException {
-        State.serverName = InetAddress.getByName(serverName);
+    public static void setServerName(String serverName) {
+        try {
+            State.serverName = InetAddress.getByName(serverName);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String getSecretKey() {

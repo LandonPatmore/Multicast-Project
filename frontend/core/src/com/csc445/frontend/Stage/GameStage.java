@@ -62,8 +62,6 @@ public class GameStage extends Stage {
         }
     };
 
-    private int lineCounter;
-
     /**
      * @param viewport ScreenViewport
      */
@@ -98,7 +96,6 @@ public class GameStage extends Stage {
         final OpenScrollPane scrollPane = new OpenScrollPane(null, altSkin);
         scrollPane.setSize(textWidth, textHeight);
         scrollPane.setPosition(xPos, yPos);
-//        scrollPane.setColor(Color.BLUE);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setFlickScroll(false);
         scrollPane.setScrollingDisabled(true, false);
@@ -107,19 +104,6 @@ public class GameStage extends Stage {
         textArea.setDisabled(true);
 
         scrollPane.setWidget(textArea);
-
-        /*Button addLineButton = new TextButton("Add new line", whiteSkin);
-        addLineButton.setPosition(525, 710);
-        addLineButton.setSize(200, 30);
-        addLineButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                textArea.appendText("\nLine " + lineCounter++);
-                scrollPane.invalidate();
-                scrollPane.scheduleScrollToBottom(); // See OpenScrollPane below
-            }
-        });
-        this.addActor(addLineButton);*/
 
         container.add(scrollPane);
         container.debugAll();
@@ -131,72 +115,33 @@ public class GameStage extends Stage {
         int positionX = 525;
         int positionY = 100;
 
-        nameTextField.addListener(new FocusListener() {
-            @Override
-            public boolean handle(Event event) {
-                if (event.toString().equals("touchDown")) {
-                    if (nameTextField.getText().toLowerCase().equals("name")) {
-                        nameTextField.setText("");
-                    }
-                }
-                return true;
-            }
-        });
-        passwordTextField.addListener(new FocusListener() {
-            @Override
-            public boolean handle(Event event) {
-                if (event.toString().equals("touchDown")) {
-                    if (passwordTextField.getText().toLowerCase().equals("password")) {
-                        passwordTextField.setText("");
-                    }
-                }
-                return true;
-            }
-        });
-        nameTextField.setPosition(positionX, positionY+buttonPassHeight+5);
+        nameTextField.setPosition(positionX, positionY + buttonPassHeight + 5);
         nameTextField.setSize(buttonPassWidth, buttonPassHeight);
         passwordTextField.setPosition(positionX, positionY);
         passwordTextField.setSize(buttonPassWidth, buttonPassHeight);
         addJoinButton.setSize(buttonPassWidth, buttonPassHeight);
-        addJoinButton.setPosition(positionX, positionY-(buttonPassHeight+5));
-        serverTextField.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                serverTextField.setText("");
-            }
-        });
-        nameTextField.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                nameTextField.setText("");
-            }
-        });
-        passwordTextField.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                passwordTextField.setText("");
-            }
-        });
+        addJoinButton.setPosition(positionX, positionY - (buttonPassHeight + 5));
+        serverTextField.setPosition(positionX, positionY+buttonPassHeight+buttonPassHeight+10);
+        serverTextField.setSize(buttonPassWidth, buttonPassHeight);
+
+        addTextFieldListener(nameTextField);
+        addTextFieldListener(passwordTextField);
+        addTextFieldListener(serverTextField);
+
         addJoinButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                name = nameTextField.getText();
-                pass = passwordTextField.getText();
-                address = serverTextField.getText();
-                System.out.println("Server Address: "+address+"\nName: "+name+"\nPassword: "+pass);
+                State.setUserName(nameTextField.getText());
+                State.setSecretKey(passwordTextField.getText());
+                State.setServerName(serverTextField.getText());
+
+                System.out.println("Server Address: " + address + "\nName: " + name + "\nPassword: " + pass);
+
                 nameTextField.invalidate();
                 passwordTextField.invalidate();
                 serverTextField.invalidate();
                 addJoinButton.invalidate();
 
-                try {
-                    State.setServerName("127.0.0.1");
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
                 sendJoinPacket();
             }
         });
@@ -204,6 +149,16 @@ public class GameStage extends Stage {
         this.addActor(this.nameTextField);
         this.addActor(this.passwordTextField);
         this.addActor(this.addJoinButton);
+    }
+
+    private void addTextFieldListener(TextField textField) {
+        textField.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                textField.setText("");
+            }
+        });
     }
 
     private void sendJoinPacket() {
