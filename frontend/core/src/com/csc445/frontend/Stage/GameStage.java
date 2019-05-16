@@ -2,24 +2,20 @@ package com.csc445.frontend.Stage;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.csc445.frontend.Actors.ColorPalletColor;
 import com.csc445.frontend.Actors.Pixel;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import com.csc445.frontend.Utils.Helper;
 import com.csc445.frontend.Utils.State;
 import com.csc445.shared.packets.JoinPacket;
 import com.csc445.shared.utils.Constants;
-
-import java.net.UnknownHostException;
 
 public class GameStage extends Stage {
 
@@ -28,16 +24,6 @@ public class GameStage extends Stage {
 
     // Array of Pallet Colors
     private ColorPalletColor[] colorPalletColors = new ColorPalletColor[Helper.getColors().length];
-
-    private final int textHeight = 500;
-
-    private final int textWidth = 225;
-
-    private String name;
-
-    private String address;
-
-    private String pass;
 
     private final Skin whiteSkin = new Skin(Gdx.files.internal("skins/whitefont/uiskin.json"));
     private final Skin altSkin = new Skin(Gdx.files.internal("skins/altfont/uiskin.json"));
@@ -53,7 +39,6 @@ public class GameStage extends Stage {
             + "This game was inspired by r/Place. Credits to Landon Patmore, Ye Bhone Myat, Robert Kilmer, and Benjamin Caro ", altSkin) {
         public float getPrefHeight() {
             float prefHeight = getLines() * getStyle().font.getLineHeight();
-//                float prefHeight = (getLines() + 1) * getStyle().font.getLineHeight(); // Work around
             TextFieldStyle style = getStyle();
             if (style.background != null) {
                 prefHeight = Math.max(prefHeight + style.background.getBottomHeight() + style.background.getTopHeight(), style.background.getMinHeight());
