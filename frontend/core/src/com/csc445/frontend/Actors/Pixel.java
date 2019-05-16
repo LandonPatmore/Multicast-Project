@@ -1,5 +1,8 @@
 package com.csc445.frontend.Actors;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
 import com.csc445.frontend.Utils.Helper;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -8,6 +11,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import org.w3c.dom.Text;
+
+import javax.swing.*;
 
 public class Pixel extends Actor {
 
@@ -15,8 +21,11 @@ public class Pixel extends Actor {
     private final Vector2 gridPos;
     private final Vector2 canvasPos;
     private final int size;
+    private TextTooltip toolTip;
     private Texture t;
     private String id;
+    private final Skin skin = new Skin(Gdx.files.internal("skins/whitefont/uiskin.json"));
+
 
     /**
      * @param gridPos   the pixel's actual grid position
@@ -52,6 +61,19 @@ public class Pixel extends Actor {
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println(id);
+            }
+
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                System.out.println(id);
+                toolTip = new TextTooltip(id, skin);
+                event.getTarget().addListener(toolTip);
+                toolTip.setInstant(true);
+
+                toolTip.handle(event);
+            }
+
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                toolTip.hide();
             }
         });
     }
