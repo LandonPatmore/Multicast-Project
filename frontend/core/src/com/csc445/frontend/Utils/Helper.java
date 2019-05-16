@@ -68,6 +68,7 @@ public class Helper {
                                 break;
                             case 5: // Message packet
                                 processMessagePacket(receivedPacket, stage);
+                                break;
                             case 7: // Error packet
                                 processErrorPacket(receivedPacket);
                                 break;
@@ -102,9 +103,7 @@ public class Helper {
         final PlayPacket p = new PlayPacket();
         p.parseSocketData(packet);
         final Spot spot = p.getSpot();
-        Gdx.app.postRunnable(() -> {
-            stage.updatePixel(spot.getX(), spot.getY(), spot.getColor(), spot.getName());
-        });
+        Gdx.app.postRunnable(() -> stage.updatePixel(spot.getX(), spot.getY(), spot.getColor(), spot.getName()));
         updateTextArea(stage, spot.getName() + " played " + Helper.convertByteToColor(spot.getColor()) + " at X: " + spot.getX() + ", Y: " + spot.getY());
     }
 
