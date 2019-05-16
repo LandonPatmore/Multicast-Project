@@ -35,19 +35,6 @@ public class MulticastThread implements Runnable {
     }
 
     /**
-     * Function that runs a separate thread to monitor if players are still connected or not.
-     */
-    private void startGame() {
-        new Thread(() -> {
-            final List<String> removedPlayers = game.sweepPlayers();
-
-            for (String p : removedPlayers) {
-                sendMessagePacket(p + " disconnected from the game.");
-            }
-        }).start();
-    }
-
-    /**
      * Function to send a packet over the socket.
      *
      * @param data    data to send
@@ -238,8 +225,6 @@ public class MulticastThread implements Runnable {
         System.out.println("Server started...");
         System.out.println("Mutlicast group: " + group);
         System.out.println("Password: " + secretKey);
-
-        startGame();
 
         while (true) {
             final DatagramPacket receivedPacket = receivePacket(); // we actually receive the data here
