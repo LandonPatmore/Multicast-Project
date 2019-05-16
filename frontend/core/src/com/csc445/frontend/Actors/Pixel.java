@@ -24,7 +24,7 @@ public class Pixel extends Actor {
     private TextTooltip toolTip;
     private Texture t;
     private String id;
-    private final Skin skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
+    private final Skin skin = new Skin(Gdx.files.internal("skins/whitefont/uiskin.json"));
 
 
     /**
@@ -68,8 +68,8 @@ public class Pixel extends Actor {
                 toolTip = new TextTooltip(id, skin);
                 event.getTarget().addListener(toolTip);
                 toolTip.setInstant(true);
-                toolTip.handle(event);
 
+                toolTip.handle(event);
             }
 
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
