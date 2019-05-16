@@ -135,8 +135,6 @@ public class GameStage extends Stage {
                 State.setSecretKey(passwordTextField.getText());
                 State.setServerName(serverTextField.getText());
 
-                System.out.println("Server Address: " + address + "\nName: " + name + "\nPassword: " + pass);
-
                 nameTextField.invalidate();
                 passwordTextField.invalidate();
                 serverTextField.invalidate();
