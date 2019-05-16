@@ -36,16 +36,14 @@ public class Helper {
     }
 
     public static void sendPacket(byte[] data, InetAddress address, int port) {
-        new Thread(() -> {
-            try {
-                final byte[] encryptedDataArray = AES.encryptByteArray(data, data.length, State.getSecretKey());
-                if (encryptedDataArray != null) {
-                    socket.send(new DatagramPacket(encryptedDataArray, encryptedDataArray.length, address, port));
-                }
-            } catch (IOException | InvalidKeyException e) {
-                e.printStackTrace();
+        try {
+            final byte[] encryptedDataArray = AES.encryptByteArray(data, data.length, State.getSecretKey());
+            if (encryptedDataArray != null) {
+                socket.send(new DatagramPacket(encryptedDataArray, encryptedDataArray.length, address, port));
             }
-        }).start();
+        } catch (IOException | InvalidKeyException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void receivePackets(GameStage stage) {
@@ -54,25 +52,29 @@ public class Helper {
                 try {
                     final byte[] buf = new byte[512];
                     final DatagramPacket receivedPacket = new DatagramPacket(buf, buf.length);
+
                     socket.receive(receivedPacket); // we actually receive the data here
 
-                    final byte[] decryptedData = decryptPacket(receivedPacket);
+                    if (State.getSecretKey() != null) { // if they don't have the password, don't even try to decrypt packets
+                        final byte[] decryptedData = decryptPacket(receivedPacket);
 
-                    if (decryptedData == null) {
-                        processWrongPassword();
-                    } else {
-                        receivedPacket.setData(decryptedData);
-                        switch (receivedPacket.getData()[0]) {
-                            case 2: // Play packet
-                                processPlayPacket(receivedPacket, stage);
-                                break;
-                            case 5: // Message packet
-                                processMessagePacket(receivedPacket, stage);
-                            case 7: // Error packet
-                                processErrorPacket(receivedPacket);
-                                break;
-                            default:
-                                break;
+                        if (decryptedData == null) {
+                            processWrongPassword();
+                        } else {
+                            receivedPacket.setData(decryptedData);
+                            switch (receivedPacket.getData()[0]) {
+                                case 2: // Play packet
+                                    processPlayPacket(receivedPacket, stage);
+                                    break;
+                                case 5: // Message packet
+                                    processMessagePacket(receivedPacket, stage);
+                                    break;
+                                case 7: // Error packet
+                                    processErrorPacket(receivedPacket);
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     }
 
@@ -102,9 +104,7 @@ public class Helper {
         final PlayPacket p = new PlayPacket();
         p.parseSocketData(packet);
         final Spot spot = p.getSpot();
-        Gdx.app.postRunnable(() -> {
-            stage.updatePixel(spot.getX(), spot.getY(), spot.getColor(), spot.getName());
-        });
+        Gdx.app.postRunnable(() -> stage.updatePixel(spot.getX(), spot.getY(), spot.getColor(), spot.getName()));
         updateTextArea(stage, spot.getName() + " played " + Helper.convertByteToColor(spot.getColor()) + " at X: " + spot.getX() + ", Y: " + spot.getY());
     }
 

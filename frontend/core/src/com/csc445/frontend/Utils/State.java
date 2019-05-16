@@ -29,7 +29,7 @@ public class State {
         }
     }
 
-    public static String getSecretKey() {
+    static String getSecretKey() {
         return secretKey;
     }
 
