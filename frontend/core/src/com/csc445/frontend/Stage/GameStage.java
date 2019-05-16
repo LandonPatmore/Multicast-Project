@@ -3,9 +3,11 @@ package com.csc445.frontend.Stage;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.csc445.frontend.Actors.PalletColor;
 import com.csc445.frontend.Actors.Pixel;
@@ -36,6 +38,8 @@ public class GameStage extends Stage {
 
     private String name;
 
+    private String address;
+
     private String pass;
 
     private final Skin whiteSkin = new Skin(Gdx.files.internal("skins/whitefont/uiskin.json"));
@@ -45,6 +49,7 @@ public class GameStage extends Stage {
 
     private final TextField passwordTextField = new TextField("Password", whiteSkin);
     private final TextField nameTextField = new TextField("Name", whiteSkin);
+    private final TextField serverTextField = new TextField("Server Address", whiteSkin);
 
     public final TextArea textArea = new TextArea("Welcome to PixelArt!\n"
             // Adding long text for soft line breaks
@@ -103,7 +108,7 @@ public class GameStage extends Stage {
 
         scrollPane.setWidget(textArea);
 
-        Button addLineButton = new TextButton("Add new line", whiteSkin);
+        /*Button addLineButton = new TextButton("Add new line", whiteSkin);
         addLineButton.setPosition(525, 710);
         addLineButton.setSize(200, 30);
         addLineButton.addListener(new ChangeListener() {
@@ -114,7 +119,7 @@ public class GameStage extends Stage {
                 scrollPane.scheduleScrollToBottom(); // See OpenScrollPane below
             }
         });
-        this.addActor(addLineButton);
+        this.addActor(addLineButton);*/
 
         container.add(scrollPane);
         container.debugAll();
@@ -153,17 +158,41 @@ public class GameStage extends Stage {
         passwordTextField.setSize(buttonPassWidth, buttonPassHeight);
         addJoinButton.setSize(buttonPassWidth, buttonPassHeight);
         addJoinButton.setPosition(positionX, positionY-(buttonPassHeight+5));
+        serverTextField.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                serverTextField.setText("");
+            }
+        });
+        nameTextField.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                nameTextField.setText("");
+            }
+        });
+        passwordTextField.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                passwordTextField.setText("");
+            }
+        });
         addJoinButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 name = nameTextField.getText();
                 pass = passwordTextField.getText();
-                System.out.println("Name: "+name+"\nPassword: "+pass);
+                address = serverTextField.getText();
+                System.out.println("Server Address: "+address+"\nName: "+name+"\nPassword: "+pass);
                 nameTextField.invalidate();
                 passwordTextField.invalidate();
+                serverTextField.invalidate();
                 addJoinButton.invalidate();
             }
         });
+        this.addActor(this.serverTextField);
         this.addActor(this.nameTextField);
         this.addActor(this.passwordTextField);
         this.addActor(this.addJoinButton);
