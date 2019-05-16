@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.csc445.frontend.Actors.PalletColor;
 import com.csc445.frontend.Actors.Pixel;
 import com.csc445.frontend.Utils.Colors;
@@ -127,9 +129,29 @@ public class GameStage extends Stage {
         int buttonPassWidth = 200;
         int buttonPassHeight = 30;
         int positionX = 525;
-        int positionY = 70;
-        serverTextField.setPosition(positionX, positionY+buttonPassHeight+buttonPassHeight+10);
-        serverTextField.setSize(buttonPassWidth, buttonPassHeight);
+        int positionY = 100;
+        nameTextField.addListener(new FocusListener() {
+            @Override
+            public boolean handle(Event event) {
+                if (event.toString().equals("touchDown")) {
+                    if (nameTextField.getText().toLowerCase().equals("name")) {
+                        nameTextField.setText("");
+                    }
+                }
+                return true;
+            }
+        });
+        passwordTextField.addListener(new FocusListener() {
+            @Override
+            public boolean handle(Event event) {
+                if (event.toString().equals("touchDown")) {
+                    if (passwordTextField.getText().toLowerCase().equals("password")) {
+                        passwordTextField.setText("");
+                    }
+                }
+                return true;
+            }
+        });
         nameTextField.setPosition(positionX, positionY+buttonPassHeight+5);
         nameTextField.setSize(buttonPassWidth, buttonPassHeight);
         passwordTextField.setPosition(positionX,positionY);

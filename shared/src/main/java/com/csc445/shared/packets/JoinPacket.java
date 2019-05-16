@@ -18,8 +18,6 @@ public class JoinPacket extends Packet {
     @Override
     public void parseSocketData(DatagramPacket packet) {
         name = new String(packet.getData(), 1, packet.getLength() - 1);
-        setSenderAddress(packet.getAddress());
-        setSenderPort(packet.getPort());
     }
 
     @Override

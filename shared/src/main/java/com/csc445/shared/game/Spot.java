@@ -79,8 +79,6 @@ public class Spot {
             data.add((byte) 126); // ~
         }
 
-        data.add((byte) 0); //this is to seperate each spot from each other
-
         final byte[] dataArray = new byte[data.size()];
 
         for (int i = 0; i < dataArray.length; i++) {

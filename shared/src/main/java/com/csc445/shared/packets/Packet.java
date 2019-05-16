@@ -1,68 +1,34 @@
 package com.csc445.shared.packets;
 
+import com.csc445.shared.utils.AES;
+import com.csc445.shared.utils.Constants;
+
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Packet {
-    protected enum Type {
-        JOIN((byte) 1),
-        PlAY((byte) 2),
-        START((byte) 4),
-        MESSAGE((byte) 5),
-        STATE_REQ((byte) 6),
-        ERROR((byte) 7);
 
-        private final byte value;
-
-        Type(byte value) {
-            this.value = value;
-        }
-
-        public byte getValue() {
-            return this.value;
-        }
-    }
-
-    public static final int SIZE = 512;
-
-    private List<Byte> data = new ArrayList<>(SIZE);
+    private List<Byte> data = new ArrayList<>(Constants.PACKET_SIZE);
     private final Type type;
 
-    private InetAddress senderAddress;
-    private int senderPort;
-
-    public Packet(Type type) {
+    Packet(Type type) {
         this.type = type;
     }
 
-    public abstract void parseSocketData(DatagramPacket packet); // always start at 1 because we aready determined what type of packet it was
+    public abstract void parseSocketData(DatagramPacket packet); // always start at 1 because we already determined what type of packet it was
 
     protected abstract void createPacketData();
 
-    public DatagramPacket createUnicastPacket() {
-        return createUnicastPacket(senderAddress, senderPort);
-    }
-
-    public DatagramPacket createUnicastPacket(InetAddress address, int port) {
+    public byte[] createPacket() {
         createPacketData();
-
-        final byte[] data = arrayListToArrayHelper();
-
-        return new DatagramPacket(data, data.length, address, port);
+        return arrayListToArrayHelper();
     }
 
-    public DatagramPacket createMulticastPacket(InetAddress address, int port) {
-        createPacketData();
-
-        final byte[] data = arrayListToArrayHelper();
-
-        return new DatagramPacket(data, data.length, address, port);
-    }
-
-    byte[] arrayListToArrayHelper() {
+    private byte[] arrayListToArrayHelper() {
         final byte[] dataArray = new byte[data.size()];
 
         for (int i = 0; i < dataArray.length; i++) {
@@ -82,10 +48,6 @@ public abstract class Packet {
         }
     }
 
-    List<Byte> getData() {
-        return data;
-    }
-
     void addData(byte data) {
         this.data.add(data);
     }
@@ -94,19 +56,22 @@ public abstract class Packet {
         return type;
     }
 
-    InetAddress getSenderAddress() {
-        return senderAddress;
-    }
+    protected enum Type {
+        JOIN((byte) 1),
+        PlAY((byte) 2),
+        START((byte) 4),
+        MESSAGE((byte) 5),
+        STATE_REQ((byte) 6),
+        ERROR((byte) 7);
 
-    void setSenderAddress(InetAddress senderAddress) {
-        this.senderAddress = senderAddress;
-    }
+        private final byte value;
 
-    int getSenderPort() {
-        return senderPort;
-    }
+        Type(byte value) {
+            this.value = value;
+        }
 
-    void setSenderPort(int senderPort) {
-        this.senderPort = senderPort;
+        public byte getValue() {
+            return this.value;
+        }
     }
 }

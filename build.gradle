@@ -1,5 +1,5 @@
 allprojects {
-    apply plugin:'java'
+    apply plugin: 'java'
     apply plugin: "eclipse"
     apply plugin: "idea"
 
@@ -9,4 +9,18 @@ allprojects {
         mavenLocal()
         mavenCentral()
     }
+}
+
+def mainProjects = [':backend', ':shared']
+task backendJar(type: Jar, dependsOn: mainProjects.collect { it + ":compileJava" }) {
+    baseName = 'backendJar'
+    from files(mainProjects.collect { project(it).sourceSets.main.output })
+
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'com.csc445.backend.Server'
+        )
+    }
+
 }

@@ -10,11 +10,9 @@ public class ErrorPacket extends Packet {
         super(Type.ERROR);
     }
 
-    public ErrorPacket(String errorMessage, DatagramPacket sender) {
+    public ErrorPacket(String errorMessage) {
         super(Type.ERROR);
         this.errorMessage = errorMessage;
-        setSenderAddress(sender.getAddress());
-        setSenderPort(sender.getPort());
     }
 
     @Override
