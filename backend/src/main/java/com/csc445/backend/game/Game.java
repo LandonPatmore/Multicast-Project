@@ -3,9 +3,7 @@ package com.csc445.backend.game;
 import com.csc445.shared.game.Player;
 import com.csc445.shared.game.Spot;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Game {

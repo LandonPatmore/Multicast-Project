@@ -1,6 +1,7 @@
 package com.csc445.backend.networking;
 
 import com.csc445.backend.game.Game;
+import com.csc445.backend.utils.Utils;
 import com.csc445.shared.game.Player;
 import com.csc445.shared.packets.*;
 import com.csc445.shared.utils.AES;
@@ -26,7 +27,7 @@ public class MulticastThread implements Runnable {
     private final String secretKey;
 
     public MulticastThread() throws IOException {
-        this.secretKey = AES.TEST_PASSWORD;
+        this.secretKey = Utils.passwordGenerator();
 
         this.group = InetAddress.getByName(Constants.GROUP_ADDRESS);
         this.socket = new DatagramSocket(Constants.SERVER_PORT);
