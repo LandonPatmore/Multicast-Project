@@ -59,7 +59,6 @@ public abstract class Packet {
     protected enum Type {
         JOIN((byte) 1),
         PLAY((byte) 2),
-        START((byte) 4),
         MESSAGE((byte) 5),
         STATE_REQ((byte) 6),
         ERROR((byte) 7);

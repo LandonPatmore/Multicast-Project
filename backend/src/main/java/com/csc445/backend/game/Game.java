@@ -68,25 +68,6 @@ public class Game {
     }
 
     /**
-     * Function to update the heartbeat for a particular player.  Finds the player and sets their heartbeat to true.
-     *
-     * @param address Address of the player that has sent a heartbeat
-     * @return true if they exist, false if they do not exist
-     */
-    public boolean updatePlayerHeartbeat(InetAddress address) {
-        for (Player p : playersList) {
-            if (p.getAddress().equals(address)) {
-                p.setHasHeartbeat(true);
-                System.out.println(p.getName() + " heartbeat detected.");
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Function to update a spot in the server game state with the new data that has come in from a particular player.
      *
      * @param spotToUpdate Spot to update with new data

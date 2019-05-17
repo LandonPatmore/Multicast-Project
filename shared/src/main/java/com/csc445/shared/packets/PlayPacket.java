@@ -17,6 +17,12 @@ public class PlayPacket extends Packet {
         spot = new Spot();
     }
 
+    public PlayPacket(Spot spot) {
+        super(Type.PLAY);
+        this.spot = spot;
+        this.sequenceNumber = -1;
+    }
+
     public PlayPacket(Spot spot, short sequenceNumber) {
         super(Type.PLAY);
         this.spot = spot;
@@ -46,8 +52,12 @@ public class PlayPacket extends Packet {
         }
     }
 
-    public int getSequenceNumber() {
+    public short getSequenceNumber() {
         return sequenceNumber;
+    }
+
+    public void setSequenceNumber(short sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 
     public Spot getSpot() {
