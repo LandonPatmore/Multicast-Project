@@ -111,7 +111,6 @@ public class MulticastThread implements Runnable {
         addPlay(p);
         game.updateSpot(p.getSpot());
 
-
         sendPacket(p.createPacket(), group, Constants.GROUP_PORT);
     }
 

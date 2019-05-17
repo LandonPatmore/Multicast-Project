@@ -26,6 +26,7 @@ public class Helper {
 
     private static boolean bufferingPlays;
     private static short currentPlayNumber = 0;
+    private static short latestPacketReceived = 0;
     private static Stack<PlayPacket> bufferedPlays = new Stack<>();
 
     static {
@@ -108,11 +109,12 @@ public class Helper {
         p.parseSocketData(packet);
 
         if (!bufferingPlays) {
-            if (!checkIfSequentialPlay(currentPlayNumber, p.getSequenceNumber())) {
+            if (checkIfSequentialPlay(currentPlayNumber, p.getSequenceNumber())) {
                 currentPlayNumber++;
                 final Spot spot = p.getSpot();
                 updateGameState(stage, spot);
             } else {
+                latestPacketReceived = p.getSequenceNumber();
                 bufferingPlays = true;
                 bufferedPlays.push(p);
 
@@ -124,16 +126,19 @@ public class Helper {
                 currentPlayNumber++;
             }
 
-            if (checkIfDoneBufferingPlays(p.getSequenceNumber())) {
+            if (checkIfDoneBufferingPlays()) {
                 bufferingPlays = false;
+                latestPacketReceived = 0;
                 addBufferedPlays(stage);
+            } else {
+                requestMissedPlays();
             }
 
         }
     }
 
-    private static boolean checkIfDoneBufferingPlays(short playNumberReceived) {
-        return (playNumberReceived - currentPlayNumber) == 1;
+    private static boolean checkIfDoneBufferingPlays() {
+        return latestPacketReceived == currentPlayNumber;
     }
 
     private static boolean checkIfSequentialPlay(short currentPlayNumber, short playNumberReceived) {

@@ -31,17 +31,14 @@ public class Game {
     }
 
     /**
-     * Function to check whether a particular player is in the game.  Checks the name, as well as the IP of the player
-     * to make sure there are no duplicate names, or multiple games being played on the same client.
+     * Function to check whether a particular player is in the game.  Checks the name, to make sure there are no duplicate names.
      *
      * @param newPlayer Player to check for their existence
      * @return true if they exist, false if they do not exist
      */
     private boolean playerIsInGame(Player newPlayer) {
         for (Player p : playersList) {
-            if (p.getAddress().equals(newPlayer.getAddress())) {
-                return true;
-            } else if (p.getName().equals(newPlayer.getName())) {
+            if (p.getName().equals(newPlayer.getName())) {
                 return true;
             }
         }
